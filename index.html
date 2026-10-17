@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Ambient Web Stream</title>
+  <!-- width=800 CarPlay tarayıcı motorumuzun tam 800x480 ölçeklemesini sağlar -->
+  <meta name="viewport" content="width=800, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CarPlay Ambient Stream</title>
   <style>
     * {
       box-sizing: border-box;
@@ -11,330 +12,393 @@
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
     }
 
     html, body {
-      width: 100%;
-      height: 100%;
-      background: #0b0c10;
+      width: 100vw;
+      height: 100vh;
+      background: #08090c;
       color: #ffffff;
       overflow: hidden;
     }
 
-    /* Animated Ambient Canvas Background */
-    #bgCanvas {
-      position: fixed;
+    /* CarPlay Ana Konteyner: Alt yüzen bar (56px) ve sağ yüzen tuşlar (50px) için güvenli alan */
+    .carplay-stage {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      padding: 12px 52px 58px 14px;
+      display: grid;
+      grid-template-columns: 1.08fr 1.32fr;
+      gap: 14px;
+    }
+
+    /* SOL PANEL: Büyük CarPlay Now Playing & Canlı Video Kartı */
+    .hero-player {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #12141c;
+      border: 1.5px solid rgba(255, 255, 255, 0.14);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Gerçek HTML5 Video (CarPlay video dedektörünü de tetikler) */
+    #ambientVideo {
+      position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
+      object-fit: cover;
       z-index: 0;
-      opacity: 0.55;
+      opacity: 0.85;
+    }
+
+    #visualCanvas {
+      display: none;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(8,10,15,0.35) 0%, rgba(8,10,15,0.75) 55%, rgba(8,10,15,0.95) 100%);
+      z-index: 1;
       pointer-events: none;
     }
 
-    .app-shell {
+    .hero-top {
       position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      width: 100%;
-      height: 100%;
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 14px 18px 64px 18px;
-    }
-
-    /* Header */
-    .top-bar {
+      z-index: 2;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 8px 16px;
-      height: 46px;
     }
 
-    .brand {
-      display: flex;
+    .live-badge {
+      display: inline-flex;
       align-items: center;
-      gap: 10px;
-      font-size: 15px;
+      gap: 7px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: #ffd60a;
     }
 
     .live-dot {
-      width: 9px;
-      height: 9px;
-      background: #30d158;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      box-shadow: 0 0 10px #30d158;
-      animation: pulse 1.8s infinite;
+      background: #30d158;
+      box-shadow: 0 0 8px #30d158;
+      animation: blink 1.6s infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.45; transform: scale(0.85); }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
     }
 
-    .status-pill {
-      font-size: 12px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.75);
-      background: rgba(255, 255, 255, 0.08);
-      padding: 5px 12px;
-      border-radius: 999px;
-    }
-
-    /* Grid for 800x480 CarPlay */
-    .stream-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      flex: 1;
-      margin: 12px 0;
-      align-items: stretch;
-    }
-
-    .stream-card {
-      position: relative;
-      border-radius: 18px;
-      overflow: hidden;
-      background: #16181f;
-      border: 1.5px solid rgba(255, 255, 255, 0.1);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 14px;
-      transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-      background-size: cover;
-      background-position: center;
-    }
-
-    .stream-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(10,12,16,0.15) 0%, rgba(10,12,16,0.88) 85%);
-      z-index: 0;
-    }
-
-    .stream-card:active {
-      transform: scale(0.97);
-    }
-
-    .stream-card.active {
-      border-color: #ffd60a;
-      box-shadow: 0 0 20px rgba(255, 214, 10, 0.28);
-    }
-
-    .card-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 1;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #ffd60a;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .card-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .card-icon {
-      font-size: 22px;
-      margin-bottom: 4px;
-    }
-
-    .card-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 2px;
-    }
-
-    .card-sub {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.68);
-    }
-
-    /* Player Bar */
-    .player-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(22, 24, 32, 0.88);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 8px 16px;
-      height: 52px;
-    }
-
-    .now-playing {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .eq-bars {
+    /* Ses Dalga Göstergesi */
+    .eq-wrap {
       display: flex;
       align-items: flex-end;
       gap: 3px;
-      height: 16px;
+      height: 18px;
+      padding: 0 6px;
     }
 
     .eq-bar {
-      width: 3px;
+      width: 4px;
+      height: 5px;
       background: #ffd60a;
-      border-radius: 2px;
-      height: 4px;
-      transition: height 0.2s ease;
+      border-radius: 3px;
     }
 
-    .playing .eq-bar:nth-child(1) { animation: eq 0.7s infinite ease-in-out; }
-    .playing .eq-bar:nth-child(2) { animation: eq 0.5s infinite ease-in-out 0.15s; }
-    .playing .eq-bar:nth-child(3) { animation: eq 0.65s infinite ease-in-out 0.3s; }
+    .playing .eq-bar:nth-child(1) { animation: bounce 0.6s infinite ease-in-out; }
+    .playing .eq-bar:nth-child(2) { animation: bounce 0.45s infinite ease-in-out 0.15s; }
+    .playing .eq-bar:nth-child(3) { animation: bounce 0.7s infinite ease-in-out 0.25s; }
+    .playing .eq-bar:nth-child(4) { animation: bounce 0.52s infinite ease-in-out 0.1s; }
 
-    @keyframes eq {
-      0%, 100% { height: 4px; }
-      50% { height: 16px; }
+    @keyframes bounce {
+      0%, 100% { height: 5px; }
+      50% { height: 18px; }
     }
 
-    .track-meta {
+    .hero-bottom {
+      position: relative;
+      z-index: 2;
       display: flex;
       flex-direction: column;
+      gap: 14px;
     }
 
-    .track-name {
-      font-size: 13px;
+    .track-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .track-category {
+      font-size: 12px;
       font-weight: 700;
+      color: #ffd60a;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .track-title {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.15;
       color: #ffffff;
+      letter-spacing: -0.3px;
     }
 
-    .track-desc {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.6);
+    .track-sub {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.72);
     }
 
-    .controls {
-      display: flex;
-      align-items: center;
+    /* Büyük CarPlay Dokunmatik Medya Tuşları */
+    .transport-row {
+      display: grid;
+      grid-template-columns: 54px 1fr 54px;
       gap: 10px;
+      height: 52px;
     }
 
-    .btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #fff;
-      height: 36px;
-      padding: 0 14px;
-      border-radius: 12px;
-      font-size: 13px;
+    .cp-btn {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #ffffff;
+      border-radius: 16px;
+      font-size: 18px;
       font-weight: 700;
-      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.15s ease;
     }
 
-    .btn.primary {
+    .cp-btn:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    .cp-btn.play-main {
+      background: #ffd60a;
+      color: #000000;
+      border: none;
+      font-size: 16px;
+      font-weight: 800;
+      box-shadow: 0 4px 18px rgba(255, 214, 10, 0.35);
+    }
+
+    .cp-btn.play-main:active {
+      background: #e6c000;
+    }
+
+    /* SAĞ PANEL: 2x2 Büyük CarPlay Kanal Kutuları */
+    .channels-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 12px;
+      height: 100%;
+    }
+
+    .channel-tile {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      background: #151821;
+      border: 2px solid rgba(255, 255, 255, 0.09);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.12s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .channel-tile::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(10,12,18,0.25) 0%, rgba(10,12,18,0.88) 90%);
+      z-index: 0;
+    }
+
+    .channel-tile:active {
+      transform: scale(0.96);
+    }
+
+    .channel-tile.active {
+      border-color: #ffd60a;
+      box-shadow: 0 0 0 2px rgba(255, 214, 10, 0.25), 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .tile-header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tile-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .tile-tag {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.6);
+      color: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .channel-tile.active .tile-tag {
       background: #ffd60a;
       color: #000;
-      border: none;
+      border-color: #ffd60a;
     }
 
-    @media (max-width: 680px) {
-      .stream-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .tile-body {
+      position: relative;
+      z-index: 1;
+    }
+
+    .tile-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 3px;
+      letter-spacing: -0.2px;
+    }
+
+    .tile-desc {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.72);
     }
   </style>
 </head>
 <body>
 
-  <canvas id="bgCanvas"></canvas>
+  <canvas id="visualCanvas" width="640" height="360"></canvas>
 
-  <div class="app-shell">
-    <div class="top-bar">
-      <div class="brand">
-        <span class="live-dot"></span>
-        <span>In-Car Ambient Web Stream</span>
-      </div>
-      <div class="status-pill" id="statusText">24/7 Live Audio & Visuals</div>
-    </div>
+  <div class="carplay-stage">
+    <!-- SOL: BÜYÜK NOW PLAYING & CANLI VİDEO KARTI -->
+    <div class="hero-player" id="heroPlayer">
+      <video id="ambientVideo" autoplay loop muted playsinline></video>
+      <div class="hero-overlay"></div>
 
-    <div class="stream-grid">
-      <div class="stream-card active" onclick="selectStream(0)" style="background-image: url('https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=600&q=80');">
-        <span class="card-badge">Live Stream</span>
-        <div class="card-content">
-          <div class="card-icon">🌧️</div>
-          <div class="card-title">Rainy Night</div>
-          <div class="card-sub">70 BPM • Soft Rain</div>
+      <div class="hero-top">
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          <span id="liveStatus">Ambient Stream</span>
+        </div>
+        <div class="eq-wrap">
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
         </div>
       </div>
 
-      <div class="stream-card" onclick="selectStream(1)" style="background-image: url('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=600&q=80');">
-        <span class="card-badge">Ambient</span>
-        <div class="card-content">
-          <div class="card-icon">🌲</div>
-          <div class="card-title">Misty Forest</div>
-          <div class="card-sub">Deep Calm • Nature</div>
+      <div class="hero-bottom">
+        <div class="track-info">
+          <div class="track-category" id="heroTag"> AMBIENCE • 70 BPM</div>
+          <div class="track-title" id="heroTitle">Rainy Night</div>
+          <div class="track-sub" id="heroSub">Soft Rain & Warm Rhodes Pads</div>
         </div>
-      </div>
 
-      <div class="stream-card" onclick="selectStream(2)" style="background-image: url('https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=600&q=80');">
-        <span class="card-badge">Cozy</span>
-        <div class="card-content">
-          <div class="card-icon">🔥</div>
-          <div class="card-title">Warm Fireplace</div>
-          <div class="card-sub">Cabin Retreat • Warm</div>
-        </div>
-      </div>
-
-      <div class="stream-card" onclick="selectStream(3)" style="background-image: url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80');">
-        <span class="card-badge">Lo-Fi</span>
-        <div class="card-content">
-          <div class="card-icon">🌙</div>
-          <div class="card-title">Midnight Drive</div>
-          <div class="card-sub">Chill Chords • 72 BPM</div>
+        <div class="transport-row">
+          <button class="cp-btn" onclick="prevChannel()" aria-label="Previous">⏮</button>
+          <button class="cp-btn play-main" id="playBtn" onclick="togglePlayback()">▶ Play Stream</button>
+          <button class="cp-btn" onclick="nextChannel()" aria-label="Next">⏭</button>
         </div>
       </div>
     </div>
 
-    <div class="player-bar" id="playerBar">
-      <div class="now-playing">
-        <div class="eq-bars">
-          <div class="eq-bar"></div>
-          <div class="eq-bar"></div>
-          <div class="eq-bar"></div>
+    <!-- SAĞ: 2x2 BÜYÜK CARPLAY KANAL GRID'İ -->
+    <div class="channels-grid">
+      <div class="channel-tile active" onclick="pickChannel(0)" style="background-image: url('https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=600&q=80');">
+        <div class="tile-header">
+          <div class="tile-icon">🌧️</div>
+          <span class="tile-tag" id="tag-0">Selected</span>
         </div>
-        <div class="track-meta">
-          <div class="track-name" id="trackTitle">Rainy Night — Ambient Stream</div>
-          <div class="track-desc" id="trackDesc">Tap Play to start relaxing in-car stream</div>
+        <div class="tile-body">
+          <div class="tile-title">Rainy Night</div>
+          <div class="tile-desc">70 BPM • Rain & Rhodes</div>
         </div>
       </div>
-      <div class="controls">
-        <button class="btn" onclick="prevStream()">⏮</button>
-        <button class="btn primary" id="playBtn" onclick="togglePlay()">▶ Play Stream</button>
-        <button class="btn" onclick="nextStream()">⏭</button>
+
+      <div class="channel-tile" onclick="pickChannel(1)" style="background-image: url('https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=600&q=80');">
+        <div class="tile-header">
+          <div class="tile-icon">🔥</div>
+          <span class="tile-tag" id="tag-1">Cozy</span>
+        </div>
+        <div class="tile-body">
+          <div class="tile-title">Warm Fireplace</div>
+          <div class="tile-desc">Wood Crackle & Calm Pads</div>
+        </div>
+      </div>
+
+      <div class="channel-tile" onclick="pickChannel(2)" style="background-image: url('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=600&q=80');">
+        <div class="tile-header">
+          <div class="tile-icon">🌲</div>
+          <span class="tile-tag" id="tag-2">Calm</span>
+        </div>
+        <div class="tile-body">
+          <div class="tile-title">Misty Forest</div>
+          <div class="tile-desc">Birdsong & Deep Peace</div>
+        </div>
+      </div>
+
+      <div class="channel-tile" onclick="pickChannel(3)" style="background-image: url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80');">
+        <div class="tile-header">
+          <div class="tile-icon">🌙</div>
+          <span class="tile-tag" id="tag-3">Chill</span>
+        </div>
+        <div class="tile-body">
+          <div class="tile-title">Midnight Highway</div>
+          <div class="tile-desc">72 BPM • Nocturnal Lo-Fi</div>
+        </div>
       </div>
     </div>
   </div>
@@ -348,50 +412,83 @@
     }
     // =========================================================================
 
-    const streams = [
-      { title: "Rainy Night — Ambient Stream", desc: "70 BPM • Soft Rain & Warm Pads", color: "#38bdf8", freq: 174 },
-      { title: "Misty Forest — Deep Calm", desc: "Pure Nature & Peaceful Drone", color: "#34d399", freq: 220 },
-      { title: "Warm Fireplace — Cabin Retreat", desc: "Cozy Embers & Harmonic Texture", color: "#fb923c", freq: 146 },
-      { title: "Midnight Drive — Lo-Fi Chill", desc: "Nocturnal Chords • 72 BPM", color: "#a78bfa", freq: 196 }
+    const channels = [
+      {
+        title: "Rainy Night",
+        tag: "AMBIENCE • 70 BPM",
+        badge: "Rain",
+        sub: "Soft Rain & Warm Rhodes Pads",
+        bg1: "#0c192c",
+        bg2: "#1e3a5f",
+        accent: "#38bdf8",
+        freq: 174
+      },
+      {
+        title: "Warm Fireplace",
+        tag: "COZY • CABIN RETREAT",
+        badge: "Cozy",
+        sub: "Gentle Wood Crackle & Warm Harmonics",
+        bg1: "#2a1208",
+        bg2: "#5c240e",
+        accent: "#fb923c",
+        freq: 146.8
+      },
+      {
+        title: "Misty Forest",
+        tag: "CALM • NATURE",
+        badge: "Calm",
+        sub: "Distant Birdsong & Serene Drone",
+        bg1: "#0a221c",
+        bg2: "#164e3f",
+        accent: "#34d399",
+        freq: 220
+      },
+      {
+        title: "Midnight Highway",
+        tag: "CHILL • 72 BPM",
+        badge: "Chill",
+        sub: "Nocturnal Lo-Fi & Deep Cello",
+        bg1: "#17112b",
+        bg2: "#31235c",
+        accent: "#a78bfa",
+        freq: 196
+      }
     ];
 
-    let currentIdx = 0;
+    let activeIndex = 0;
     let isPlaying = false;
     let audioCtx = null;
-    let gainNode = null;
-    let osc1 = null;
-    let osc2 = null;
-    let noiseNode = null;
+    let osc1 = null, osc2 = null, noiseNode = null;
 
-    function setupAudio(freq) {
+    function startAudioEngine(freq) {
       if (!audioCtx) {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
       }
-      stopAudioNodes();
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+      stopAudioEngine();
 
-      gainNode = audioCtx.createGain();
-      gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 1.2);
-      gainNode.connect(audioCtx.destination);
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+      masterGain.gain.exponentialRampToValueAtTime(0.20, audioCtx.currentTime + 1.0);
+      masterGain.connect(audioCtx.destination);
 
-      // Warm ambient pad oscillators
       osc1 = audioCtx.createOscillator();
       osc2 = audioCtx.createOscillator();
       osc1.type = "sine";
       osc2.type = "triangle";
       osc1.frequency.value = freq;
-      osc2.frequency.value = freq * 1.498; // soothing fifth interval
+      osc2.frequency.value = freq * 1.498;
 
       const padFilter = audioCtx.createBiquadFilter();
       padFilter.type = "lowpass";
-      padFilter.frequency.value = 360;
-
+      padFilter.frequency.value = 340;
       osc1.connect(padFilter);
       osc2.connect(padFilter);
-      padFilter.connect(gainNode);
+      padFilter.connect(masterGain);
 
-      // Soft soothing rain/pink noise texture
       const bufferSize = audioCtx.sampleRate * 2;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -404,7 +501,7 @@
         b3 = 0.86650 * b3 + white * 0.3104856;
         b4 = 0.55000 * b4 + white * 0.5329522;
         b5 = -0.7616 * b5 - white * 0.0168980;
-        output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.015;
+        output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.016;
         b6 = white * 0.115926;
       }
 
@@ -414,100 +511,137 @@
 
       const noiseFilter = audioCtx.createBiquadFilter();
       noiseFilter.type = "lowpass";
-      noiseFilter.frequency.value = 850;
+      noiseFilter.frequency.value = 820;
       noiseNode.connect(noiseFilter);
-      noiseFilter.connect(gainNode);
+      noiseFilter.connect(masterGain);
 
       osc1.start();
       osc2.start();
       noiseNode.start();
     }
 
-    function stopAudioNodes() {
-      try { if (osc1) osc1.stop(); } catch(e) {}
-      try { if (osc2) osc2.stop(); } catch(e) {}
-      try { if (noiseNode) noiseNode.stop(); } catch(e) {}
+    function stopAudioEngine() {
+      try { if (osc1) osc1.stop(); } catch (_) {}
+      try { if (osc2) osc2.stop(); } catch (_) {}
+      try { if (noiseNode) noiseNode.stop(); } catch (_) {}
       osc1 = null; osc2 = null; noiseNode = null;
     }
 
-    function selectStream(idx) {
-      currentIdx = idx;
-      document.querySelectorAll(".stream-card").forEach((el, i) => {
-        el.classList.toggle("active", i === idx);
-      });
-      document.getElementById("trackTitle").textContent = streams[idx].title;
-      document.getElementById("trackDesc").textContent = streams[idx].desc;
-      if (!isPlaying) {
-        togglePlay();
-      } else {
-        setupAudio(streams[idx].freq);
-      }
-    }
+    function updateUI() {
+      const ch = channels[activeIndex];
+      document.getElementById("heroTag").textContent = ch.tag;
+      document.getElementById("heroTitle").textContent = ch.title;
+      document.getElementById("heroSub").textContent = ch.sub;
 
-    function togglePlay() {
-      isPlaying = !isPlaying;
-      const btn = document.getElementById("playBtn");
-      const bar = document.getElementById("playerBar");
+      document.querySelectorAll(".channel-tile").forEach((tile, idx) => {
+        tile.classList.toggle("active", idx === activeIndex);
+        const tagEl = document.getElementById("tag-" + idx);
+        if (idx === activeIndex) {
+          tagEl.textContent = isPlaying ? "Playing" : "Selected";
+        } else {
+          tagEl.textContent = channels[idx].badge;
+        }
+      });
+
+      const playBtn = document.getElementById("playBtn");
+      const heroPlayer = document.getElementById("heroPlayer");
+      const liveStatus = document.getElementById("liveStatus");
+
       if (isPlaying) {
-        setupAudio(streams[currentIdx].freq);
-        btn.textContent = "⏸ Pause";
-        bar.classList.add("playing");
-        document.getElementById("statusText").textContent = "Streaming Live Audio";
+        playBtn.textContent = "⏸ Pause Stream";
+        heroPlayer.classList.add("playing");
+        liveStatus.textContent = "Live Audio & Video";
       } else {
-        stopAudioNodes();
-        btn.textContent = "▶ Play Stream";
-        bar.classList.remove("playing");
-        document.getElementById("statusText").textContent = "Stream Paused";
+        playBtn.textContent = "▶ Play Stream";
+        heroPlayer.classList.remove("playing");
+        liveStatus.textContent = "Ambient Stream";
       }
     }
 
-    function prevStream() {
-      selectStream((currentIdx - 1 + streams.length) % streams.length);
+    function pickChannel(index) {
+      activeIndex = index;
+      isPlaying = true;
+      startAudioEngine(channels[activeIndex].freq);
+      const vid = document.getElementById("ambientVideo");
+      if (vid && vid.paused) { vid.play().catch(() => {}); }
+      updateUI();
     }
 
-    function nextStream() {
-      selectStream((currentIdx + 1) % streams.length);
+    function togglePlayback() {
+      isPlaying = !isPlaying;
+      const vid = document.getElementById("ambientVideo");
+      if (isPlaying) {
+        startAudioEngine(channels[activeIndex].freq);
+        if (vid) { vid.play().catch(() => {}); }
+      } else {
+        stopAudioEngine();
+      }
+      updateUI();
     }
 
-    // Visual Rain / Particle Canvas Animation
-    const canvas = document.getElementById("bgCanvas");
+    function prevChannel() {
+      pickChannel((activeIndex - 1 + channels.length) % channels.length);
+    }
+
+    function nextChannel() {
+      pickChannel((activeIndex + 1) % channels.length);
+    }
+
+    // Canlı Canvas Görselleştirici -> Gerçek HTML5 <video> Akışına Bağlanır
+    const canvas = document.getElementById("visualCanvas");
     const ctx = canvas.getContext("2d");
-    let particles = [];
+    const drops = Array.from({ length: 48 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      len: 12 + Math.random() * 20,
+      speed: 2 + Math.random() * 3,
+      r: 1.5 + Math.random() * 2.5
+    }));
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resize);
-    resize();
+    function renderLoop() {
+      const ch = channels[activeIndex];
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, ch.bg1);
+      grad.addColorStop(1, ch.bg2);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < 55; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        len: 10 + Math.random() * 18,
-        speed: 1.5 + Math.random() * 2.5
-      });
-    }
+      ctx.strokeStyle = ch.accent + "66";
+      ctx.fillStyle = ch.accent + "55";
+      ctx.lineWidth = 2;
 
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = streams[currentIdx].color + "44";
-      ctx.lineWidth = 1.5;
-      for (const p of particles) {
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x, p.y + p.len);
-        ctx.stroke();
-        p.y += isPlaying ? p.speed : p.speed * 0.25;
-        if (p.y > canvas.height) {
-          p.y = -20;
-          p.x = Math.random() * canvas.width;
+      for (const d of drops) {
+        if (activeIndex === 1) {
+          // Şömine kıvılcımları yukarı süzülür
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+          ctx.fill();
+          d.y -= isPlaying ? d.speed * 0.7 : d.speed * 0.2;
+          if (d.y < -10) { d.y = canvas.height + 10; d.x = Math.random() * canvas.width; }
+        } else {
+          // Yağmur / Gece süzülmesi
+          ctx.beginPath();
+          ctx.moveTo(d.x, d.y);
+          ctx.lineTo(d.x, d.y + d.len);
+          ctx.stroke();
+          d.y += isPlaying ? d.speed : d.speed * 0.3;
+          if (d.y > canvas.height + 20) { d.y = -20; d.x = Math.random() * canvas.width; }
         }
       }
-      requestAnimationFrame(animate);
+      requestAnimationFrame(renderLoop);
     }
-    animate();
+    renderLoop();
+
+    // Canvas akışını <video> elementine bağla (CarPlay Video Dedektörü için)
+    window.addEventListener("DOMContentLoaded", () => {
+      const vid = document.getElementById("ambientVideo");
+      if (vid && canvas.captureStream) {
+        try {
+          vid.srcObject = canvas.captureStream(30);
+          vid.play().catch(() => {});
+        } catch (_) {}
+      }
+    });
   </script>
 </body>
 </html>
