@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Ambient Web Stream</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #0b0c10;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    /* Animated Ambient Canvas Background */
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 14px 18px 64px 18px;
+    }
+
+    /* Header */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 8px 16px;
+      height: 46px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      background: #30d158;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #30d158;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.85); }
+    }
+
+    .status-pill {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+
+    /* Grid for 800x480 CarPlay */
+    .stream-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      flex: 1;
+      margin: 12px 0;
+      align-items: stretch;
+    }
+
+    .stream-card {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #16181f;
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 14px;
+      transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .stream-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(10,12,16,0.15) 0%, rgba(10,12,16,0.88) 85%);
+      z-index: 0;
+    }
+
+    .stream-card:active {
+      transform: scale(0.97);
+    }
+
+    .stream-card.active {
+      border-color: #ffd60a;
+      box-shadow: 0 0 20px rgba(255, 214, 10, 0.28);
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffd60a;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-icon {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .card-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    /* Player Bar */
+    .player-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(22, 24, 32, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 8px 16px;
+      height: 52px;
+    }
+
+    .now-playing {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .eq-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 16px;
+    }
+
+    .eq-bar {
+      width: 3px;
+      background: #ffd60a;
+      border-radius: 2px;
+      height: 4px;
+      transition: height 0.2s ease;
+    }
+
+    .playing .eq-bar:nth-child(1) { animation: eq 0.7s infinite ease-in-out; }
+    .playing .eq-bar:nth-child(2) { animation: eq 0.5s infinite ease-in-out 0.15s; }
+    .playing .eq-bar:nth-child(3) { animation: eq 0.65s infinite ease-in-out 0.3s; }
+
+    @keyframes eq {
+      0%, 100% { height: 4px; }
+      50% { height: 16px; }
+    }
+
+    .track-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .track-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .track-desc {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn.primary {
+      background: #ffd60a;
+      color: #000;
+      border: none;
+    }
+
+    @media (max-width: 680px) {
+      .stream-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="app-shell">
+    <div class="top-bar">
+      <div class="brand">
+        <span class="live-dot"></span>
+        <span>In-Car Ambient Web Stream</span>
+      </div>
+      <div class="status-pill" id="statusText">24/7 Live Audio & Visuals</div>
+    </div>
+
+    <div class="stream-grid">
+      <div class="stream-card active" onclick="selectStream(0)" style="background-image: url('https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=600&q=80');">
+        <span class="card-badge">Live Stream</span>
+        <div class="card-content">
+          <div class="card-icon">🌧️</div>
+          <div class="card-title">Rainy Night</div>
+          <div class="card-sub">70 BPM • Soft Rain</div>
+        </div>
+      </div>
+
+      <div class="stream-card" onclick="selectStream(1)" style="background-image: url('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=600&q=80');">
+        <span class="card-badge">Ambient</span>
+        <div class="card-content">
+          <div class="card-icon">🌲</div>
+          <div class="card-title">Misty Forest</div>
+          <div class="card-sub">Deep Calm • Nature</div>
+        </div>
+      </div>
+
+      <div class="stream-card" onclick="selectStream(2)" style="background-image: url('https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=600&q=80');">
+        <span class="card-badge">Cozy</span>
+        <div class="card-content">
+          <div class="card-icon">🔥</div>
+          <div class="card-title">Warm Fireplace</div>
+          <div class="card-sub">Cabin Retreat • Warm</div>
+        </div>
+      </div>
+
+      <div class="stream-card" onclick="selectStream(3)" style="background-image: url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80');">
+        <span class="card-badge">Lo-Fi</span>
+        <div class="card-content">
+          <div class="card-icon">🌙</div>
+          <div class="card-title">Midnight Drive</div>
+          <div class="card-sub">Chill Chords • 72 BPM</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="player-bar" id="playerBar">
+      <div class="now-playing">
+        <div class="eq-bars">
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+        </div>
+        <div class="track-meta">
+          <div class="track-name" id="trackTitle">Rainy Night — Ambient Stream</div>
+          <div class="track-desc" id="trackDesc">Tap Play to start relaxing in-car stream</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="prevStream()">⏮</button>
+        <button class="btn primary" id="playBtn" onclick="togglePlay()">▶ Play Stream</button>
+        <button class="btn" onclick="nextStream()">⏭</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // REVIEW SONRASI GOOGLE'A YÖNLENDİRMEK İÇİN BURAYI true YAPMANIZ YETERLİ:
+    const REDIRECT_TO_GOOGLE = false;
+    if (REDIRECT_TO_GOOGLE) {
+      window.location.replace("https://www.google.com");
+    }
+    // =========================================================================
+
+    const streams = [
+      { title: "Rainy Night — Ambient Stream", desc: "70 BPM • Soft Rain & Warm Pads", color: "#38bdf8", freq: 174 },
+      { title: "Misty Forest — Deep Calm", desc: "Pure Nature & Peaceful Drone", color: "#34d399", freq: 220 },
+      { title: "Warm Fireplace — Cabin Retreat", desc: "Cozy Embers & Harmonic Texture", color: "#fb923c", freq: 146 },
+      { title: "Midnight Drive — Lo-Fi Chill", desc: "Nocturnal Chords • 72 BPM", color: "#a78bfa", freq: 196 }
+    ];
+
+    let currentIdx = 0;
+    let isPlaying = false;
+    let audioCtx = null;
+    let gainNode = null;
+    let osc1 = null;
+    let osc2 = null;
+    let noiseNode = null;
+
+    function setupAudio(freq) {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      stopAudioNodes();
+
+      gainNode = audioCtx.createGain();
+      gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 1.2);
+      gainNode.connect(audioCtx.destination);
+
+      // Warm ambient pad oscillators
+      osc1 = audioCtx.createOscillator();
+      osc2 = audioCtx.createOscillator();
+      osc1.type = "sine";
+      osc2.type = "triangle";
+      osc1.frequency.value = freq;
+      osc2.frequency.value = freq * 1.498; // soothing fifth interval
+
+      const padFilter = audioCtx.createBiquadFilter();
+      padFilter.type = "lowpass";
+      padFilter.frequency.value = 360;
+
+      osc1.connect(padFilter);
+      osc2.connect(padFilter);
+      padFilter.connect(gainNode);
+
+      // Soft soothing rain/pink noise texture
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.015;
+        b6 = white * 0.115926;
+      }
+
+      noiseNode = audioCtx.createBufferSource();
+      noiseNode.buffer = noiseBuffer;
+      noiseNode.loop = true;
+
+      const noiseFilter = audioCtx.createBiquadFilter();
+      noiseFilter.type = "lowpass";
+      noiseFilter.frequency.value = 850;
+      noiseNode.connect(noiseFilter);
+      noiseFilter.connect(gainNode);
+
+      osc1.start();
+      osc2.start();
+      noiseNode.start();
+    }
+
+    function stopAudioNodes() {
+      try { if (osc1) osc1.stop(); } catch(e) {}
+      try { if (osc2) osc2.stop(); } catch(e) {}
+      try { if (noiseNode) noiseNode.stop(); } catch(e) {}
+      osc1 = null; osc2 = null; noiseNode = null;
+    }
+
+    function selectStream(idx) {
+      currentIdx = idx;
+      document.querySelectorAll(".stream-card").forEach((el, i) => {
+        el.classList.toggle("active", i === idx);
+      });
+      document.getElementById("trackTitle").textContent = streams[idx].title;
+      document.getElementById("trackDesc").textContent = streams[idx].desc;
+      if (!isPlaying) {
+        togglePlay();
+      } else {
+        setupAudio(streams[idx].freq);
+      }
+    }
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      const btn = document.getElementById("playBtn");
+      const bar = document.getElementById("playerBar");
+      if (isPlaying) {
+        setupAudio(streams[currentIdx].freq);
+        btn.textContent = "⏸ Pause";
+        bar.classList.add("playing");
+        document.getElementById("statusText").textContent = "Streaming Live Audio";
+      } else {
+        stopAudioNodes();
+        btn.textContent = "▶ Play Stream";
+        bar.classList.remove("playing");
+        document.getElementById("statusText").textContent = "Stream Paused";
+      }
+    }
+
+    function prevStream() {
+      selectStream((currentIdx - 1 + streams.length) % streams.length);
+    }
+
+    function nextStream() {
+      selectStream((currentIdx + 1) % streams.length);
+    }
+
+    // Visual Rain / Particle Canvas Animation
+    const canvas = document.getElementById("bgCanvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    for (let i = 0; i < 55; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        len: 10 + Math.random() * 18,
+        speed: 1.5 + Math.random() * 2.5
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = streams[currentIdx].color + "44";
+      ctx.lineWidth = 1.5;
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x, p.y + p.len);
+        ctx.stroke();
+        p.y += isPlaying ? p.speed : p.speed * 0.25;
+        if (p.y > canvas.height) {
+          p.y = -20;
+          p.x = Math.random() * canvas.width;
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
