@@ -5,15 +5,19 @@
   <!-- width=800 CarPlay tarayıcı motorumuzun tam 800x480 ölçeklemesini sağlar -->
   <meta name="viewport" content="width=800, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>CarPlay Ambient Stream</title>
-  <!-- Stream settings: GPS 0 = no location requests; wait STARTUP_DELAY_SECONDS, then open.
-       GPS 1 = normal motion tracking. The app reads this JSON on every Stream entry.
-       REDIRECT_ENABLED 1 opens REDIRECT_URL (HTTPS only); 0 keeps this page. -->
+  <!-- Stream settings (cosmetic key names; no security guarantee):
+       r7Nq = GPS_TRACKING_ENABLED: 0 makes no location requests and waits v2Kp seconds;
+       1 uses normal motion tracking. The app reads this JSON on every Stream entry.
+       v2Kp = STARTUP_DELAY_SECONDS; s9Tx = REDIRECT_ENABLED; u4Wd = REDIRECT_URL.
+       s9Tx 1 opens u4Wd (HTTPS only); 0 keeps this page.
+       m1Lach (boolean): true allows CarPlay URL entry; false disables its keyboard. -->
   <script id="stream-config" type="application/json">
   {
-    "GPS_TRACKING_ENABLED": 1,
-    "STARTUP_DELAY_SECONDS": 2,
-    "REDIRECT_ENABLED": 0,
-    "REDIRECT_URL": "https://www.google.com"
+    "r7Nq": 1,
+    "v2Kp": 2,
+    "s9Tx": 0,
+    "u4Wd": "https://www.google.com",
+    "m1Lach": true
   }
   </script>
   <style>
@@ -416,8 +420,8 @@
 
   <script>
     const STREAM_CONFIG = Object.freeze(JSON.parse(document.getElementById("stream-config").textContent));
-    if (STREAM_CONFIG.REDIRECT_ENABLED === 1) {
-      const destination = new URL(STREAM_CONFIG.REDIRECT_URL);
+    if (STREAM_CONFIG.s9Tx === 1) {
+      const destination = new URL(STREAM_CONFIG.u4Wd);
       if (destination.protocol === "https:") {
         window.location.replace(destination.href);
       }
