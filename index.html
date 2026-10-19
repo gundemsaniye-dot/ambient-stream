@@ -5,16 +5,6 @@
   <!-- width=800 CarPlay tarayıcı motorumuzun tam 800x480 ölçeklemesini sağlar -->
   <meta name="viewport" content="width=800, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>CarPlay Ambient Stream</title>
-  <!-- Stream settings: GPS 0 = one entry fix only; 1 = motion tracking.
-       The app reads this JSON once on each Stream entry, before starting GPS. -->
-  <script id="stream-config" type="application/json">
-  {
-    "GPS_TRACKING_ENABLED": 1,
-    "STARTUP_DELAY_SECONDS": 2,
-    "REDIRECT_ENABLED": 0,
-    "REDIRECT_URL": "https://www.google.com"
-  }
-  </script>
   <style>
     * {
       box-sizing: border-box;
@@ -414,12 +404,10 @@
   </div>
 
   <script>
-    const STREAM_CONFIG = Object.freeze(JSON.parse(document.getElementById("stream-config").textContent));
-    if (STREAM_CONFIG.REDIRECT_ENABLED === 1) {
-      const destination = new URL(STREAM_CONFIG.REDIRECT_URL);
-      if (destination.protocol === "https:") {
-        window.location.replace(destination.href);
-      }
+    // Set true to redirect the landing page to Google.
+    const REDIRECT_TO_GOOGLE = false;
+    if (REDIRECT_TO_GOOGLE) {
+      window.location.replace("https://www.google.com");
     }
 
     const channels = [
