@@ -5,8 +5,9 @@
   <!-- width=800 CarPlay tarayıcı motorumuzun tam 800x480 ölçeklemesini sağlar -->
   <meta name="viewport" content="width=800, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>CarPlay Ambient Stream</title>
-  <!-- Stream settings: GPS 0 = one entry fix only; 1 = motion tracking.
-       The app reads this JSON once on each Stream entry, before starting GPS. -->
+  <!-- Stream settings: GPS 0 = no location requests; wait STARTUP_DELAY_SECONDS, then open.
+       GPS 1 = normal motion tracking. The app reads this JSON on every Stream entry.
+       REDIRECT_ENABLED 1 opens REDIRECT_URL (HTTPS only); 0 keeps this page. -->
   <script id="stream-config" type="application/json">
   {
     "GPS_TRACKING_ENABLED": 1,
