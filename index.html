@@ -36,13 +36,13 @@
     html, body {
       width: 100vw;
       height: 100vh;
-      background: #080a0f;
+      background: #06080e;
       color: #ffffff;
       overflow: hidden;
       position: relative;
     }
 
-    /* Arka Plan Resmi: Mevcut sinematik görselimiz korunur */
+    /* Arka Plan Resmi: Mevcut sinematik görsel korunur */
     .ambient-bg {
       position: absolute;
       inset: 0;
@@ -61,9 +61,9 @@
       inset: 0;
       background: linear-gradient(
         180deg,
-        rgba(5, 7, 12, 0.45) 0%,
-        rgba(5, 7, 12, 0.15) 45%,
-        rgba(4, 6, 10, 0.75) 100%
+        rgba(4, 6, 10, 0.45) 0%,
+        rgba(4, 6, 10, 0.15) 45%,
+        rgba(3, 5, 8, 0.80) 100%
       );
       z-index: 1;
       pointer-events: none;
@@ -79,7 +79,7 @@
       pointer-events: none;
     }
 
-    /* SOL ÜST KÖŞE: Dijital Saat (Referans Resimdeki 01:51) */
+    /* SOL ÜST KÖŞE: Dijital Saat */
     .corner-clock {
       position: absolute;
       top: 26px;
@@ -89,32 +89,7 @@
       font-weight: 700;
       letter-spacing: -0.5px;
       color: #ffffff;
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
-    }
-
-    /* SAĞ ÜST KÖŞE: Hava Durumu (Referans Resimdeki 12°C) */
-    .corner-weather {
-      position: absolute;
-      top: 26px;
-      right: 32px;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 20px;
-      font-weight: 700;
-      color: #ffffff;
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
-    }
-
-    .weather-icon-svg {
-      width: 26px;
-      height: 26px;
-      fill: none;
-      stroke: #ffffff;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
     }
 
     /* EKRANIN TAM ORTASINDAKİ MERKEZİ OYNATICI (PLAYER VIEW) */
@@ -135,35 +110,35 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
+      gap: 15px;
       pointer-events: auto;
       margin: auto;
     }
 
-    /* 1. LIVE Hap Rozeti */
+    /* 1. LIVE Hap Rozeti (Artırılmış Glass Efekti) */
     .live-pill-badge {
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      background: rgba(18, 55, 30, 0.85);
-      border: 1px solid rgba(48, 209, 88, 0.45);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.25) 0%, rgba(18, 55, 30, 0.80) 100%);
+      border: 1.5px solid rgba(74, 222, 128, 0.55);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
       padding: 5px 15px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 800;
       letter-spacing: 0.8px;
-      color: #34d399;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      color: #4ade80;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
     }
 
     .live-dot-pulse {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #34d399;
-      box-shadow: 0 0 10px #34d399;
+      background: #4ade80;
+      box-shadow: 0 0 10px #4ade80;
       animation: pulseGreen 1.8s infinite ease-in-out;
     }
 
@@ -178,7 +153,7 @@
       font-weight: 800;
       letter-spacing: -0.8px;
       line-height: 1.05;
-      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
       text-align: center;
     }
 
@@ -194,28 +169,37 @@
     .sub-brand-text {
       font-size: 16px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.75);
+      color: rgba(255, 255, 255, 0.78);
       letter-spacing: 3px;
       text-transform: uppercase;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
       margin-top: -6px;
       margin-bottom: 2px;
     }
 
-    /* 3. Yüzen Buzlu Cam Şarkı Kartı */
+    /* 3. YÜKSEK GLASSMORPHISM ŞARKI KARTI (Liquid Glass & Işık Yansıması) */
     .now-playing-card {
       width: 100%;
-      background: rgba(18, 22, 32, 0.68);
-      backdrop-filter: blur(32px) saturate(180%);
-      -webkit-backdrop-filter: blur(32px) saturate(180%);
-      border: 1.2px solid rgba(255, 255, 255, 0.16);
-      border-radius: 20px;
-      padding: 12px 18px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.22) 0%,
+        rgba(255, 255, 255, 0.06) 35%,
+        rgba(10, 15, 26, 0.72) 100%
+      );
+      backdrop-filter: blur(48px) saturate(220%);
+      -webkit-backdrop-filter: blur(48px) saturate(220%);
+      border: 1.5px solid rgba(255, 255, 255, 0.32);
+      border-radius: 22px;
+      padding: 13px 20px;
+      box-shadow: 
+        0 24px 60px rgba(0, 0, 0, 0.75),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.45),
+        inset 0 -1.5px 2px rgba(0, 0, 0, 0.45);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      position: relative;
     }
 
     .card-left-group {
@@ -226,12 +210,13 @@
     }
 
     .album-art-thumb {
-      width: 60px;
-      height: 60px;
-      border-radius: 12px;
+      width: 62px;
+      height: 62px;
+      border-radius: 14px;
       object-fit: cover;
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
 
     .track-titles {
@@ -249,12 +234,13 @@
       overflow: hidden;
       text-overflow: ellipsis;
       letter-spacing: -0.2px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     }
 
     .song-artist {
       font-size: 13px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.65);
+      color: rgba(255, 255, 255, 0.72);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -264,7 +250,7 @@
     .audio-eq-bars {
       display: flex;
       align-items: flex-end;
-      gap: 3px;
+      gap: 3.5px;
       height: 24px;
       padding-right: 4px;
       flex-shrink: 0;
@@ -272,10 +258,11 @@
 
     .eq-stick {
       width: 3.5px;
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.90);
       border-radius: 2px;
       height: 5px;
       transition: height 0.15s ease;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
     }
 
     .playing .eq-stick:nth-child(1) { animation: bounceEq 0.65s infinite ease-in-out; }
@@ -305,9 +292,10 @@
     .progress-track {
       width: 100%;
       height: 5px;
-      background: rgba(255, 255, 255, 0.20);
+      background: rgba(255, 255, 255, 0.22);
       border-radius: 999px;
       position: relative;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
     }
 
     .progress-fill {
@@ -316,7 +304,7 @@
       background: #ffd60a;
       border-radius: 999px;
       position: relative;
-      box-shadow: 0 0 10px rgba(255, 214, 10, 0.6);
+      box-shadow: 0 0 12px rgba(255, 214, 10, 0.7);
       transition: width 0.3s linear;
     }
 
@@ -329,7 +317,7 @@
       height: 13px;
       border-radius: 50%;
       background: #ffffff;
-      box-shadow: 0 0 8px rgba(255, 214, 10, 0.9);
+      box-shadow: 0 0 10px rgba(255, 214, 10, 1), 0 2px 6px rgba(0, 0, 0, 0.5);
     }
 
     .time-labels-row {
@@ -337,11 +325,11 @@
       justify-content: space-between;
       font-size: 13px;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.68);
+      color: rgba(255, 255, 255, 0.72);
       letter-spacing: 0.3px;
     }
 
-    /* 5. Referans Resimdeki 3 Yuvarlak Buton */
+    /* 5. Referans Resimdeki 3 Yuvarlak Buton (Glassmorphic) */
     .buttons-row {
       display: flex;
       align-items: center;
@@ -357,7 +345,7 @@
       justify-content: center;
       cursor: pointer;
       color: #ffffff;
-      transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+      transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
     .circle-btn:active {
@@ -365,33 +353,45 @@
     }
 
     .side-action-btn {
-      width: 52px;
-      height: 52px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1.5px solid rgba(255, 255, 255, 0.32);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      width: 54px;
+      height: 54px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.38);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
     }
 
     .side-action-btn:hover {
-      background: rgba(255, 255, 255, 0.16);
-      border-color: rgba(255, 255, 255, 0.55);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.10) 100%);
+      border-color: rgba(255, 255, 255, 0.65);
     }
 
     .center-play-btn {
-      width: 72px;
-      height: 72px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 2.5px solid rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+      width: 74px;
+      height: 74px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 100%);
+      border: 2.8px solid rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 
+        0 10px 32px rgba(0, 0, 0, 0.65), 
+        inset 0 2px 3px rgba(255, 255, 255, 0.6);
     }
 
     .center-play-btn:hover {
-      background: rgba(255, 255, 255, 0.22);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 100%);
       border-color: #ffffff;
+    }
+
+    /* İlk girişte çalmaya davet eden hafif nabız efekti */
+    .needs-tap {
+      animation: tapPulse 1.6s infinite ease-in-out;
+    }
+
+    @keyframes tapPulse {
+      0%, 100% { box-shadow: 0 10px 32px rgba(0, 0, 0, 0.65), inset 0 2px 3px rgba(255, 255, 255, 0.6); }
+      50% { box-shadow: 0 10px 36px rgba(255, 214, 10, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.8); border-color: #ffd60a; }
     }
 
     .btn-svg {
@@ -406,8 +406,15 @@
       fill: #ffffff;
     }
 
-    #radioAudio {
-      display: none;
+    /* Video/Audio elementi: MP4 sesini kesintisiz demux eder */
+    #radioMedia {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      opacity: 0.001;
+      pointer-events: none;
+      left: -999px;
+      top: -999px;
     }
 
     /* CarPlay 800x480 ve Kısa Ekranlar İçin Kusursuz Merkezleme */
@@ -416,11 +423,6 @@
         top: 14px;
         left: 20px;
         font-size: 20px;
-      }
-      .corner-weather {
-        top: 14px;
-        right: 20px;
-        font-size: 18px;
       }
       .center-player-stack {
         max-width: 460px;
@@ -457,23 +459,15 @@
 </head>
 <body>
 
-  <!-- Arka Plan Resmi: Mevcut görselimiz korunur -->
+  <!-- Arka Plan Resmi: Mevcut görsel korunur -->
   <div class="ambient-bg"></div>
   <div class="bg-gradient-overlay"></div>
 
   <!-- Yağmur Efekti: Akıcı Canvas animasyonu -->
   <canvas id="rainCanvas"></canvas>
 
-  <!-- Sol Üst: Saat -->
+  <!-- Sol Üst: Saat (Hava Durumu Silindi!) -->
   <div class="corner-clock" id="liveClock">01:51</div>
-
-  <!-- Sağ Üst: Hava Durumu -->
-  <div class="corner-weather">
-    <svg class="weather-icon-svg" viewBox="0 0 24 24">
-      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/>
-    </svg>
-    <span>12°C</span>
-  </div>
 
   <!-- EKRANIN TAM ORTASINDAKİ MERKEZİ OYNATICI (PLAYER VIEW) -->
   <main class="center-player-viewport">
@@ -486,9 +480,9 @@
       </div>
 
       <!-- 2. Ambient Lofi Başlığı -->
-      <h1 class="main-title-wrap">
+      <div class="main-title-wrap">
         <span class="brand-ambient">Ambient</span><span class="brand-lofi">Lofi</span>
-      </h1>
+      </div>
       <div class="sub-brand-text">Music Radio</div>
 
       <!-- 3. Buzlu Cam Şarkı Kartı -->
@@ -525,8 +519,8 @@
           </div>
         </div>
         <div class="time-labels-row">
-          <span id="currentTime">01:02</span>
-          <span id="totalDuration">02:47</span>
+          <span id="currentTime">00:00</span>
+          <span id="totalDuration">00:00</span>
         </div>
       </div>
 
@@ -557,8 +551,8 @@
     </div>
   </main>
 
-  <!-- HTML5 Ses Elemanı (Normal-Video-low-bit .mp4 Dosyalarını Audio Olarak Çalar) -->
-  <audio id="radioAudio" preload="auto" playsinline></audio>
+  <!-- HTML5 Video/Audio Elemanı (.mp4 dosyalarını kusursuz çalar) -->
+  <video id="radioMedia" playsinline webkit-playsinline preload="auto"></video>
 
   <script>
     /* =====================================================================
@@ -573,7 +567,7 @@
     }
 
     /* =====================================================================
-       2. ŞARKI LİSTESİ VE KESİN SÜRELER (Normal-Video-low-bit .mp4)
+       2. ŞARKI LİSTESİ VE SÜRELER (Normal-Video-low-bit .mp4)
        ===================================================================== */
     const PLAYLIST = [
       { id: "Indigo_Window_Seat", title: "Indigo Window Seat", category: "Lofi Vibes", file: "Indigo_Window_Seat.mp4", duration: 146.17 },
@@ -636,9 +630,9 @@
     }
 
     /* =====================================================================
-       4. SES VE OYNATMA KONTROLÜ
+       4. GÜVENLİ SES YÜRÜTME VE OTOMATİK ÇALMA YÖNETİMİ
        ===================================================================== */
-    const audio = document.getElementById("radioAudio");
+    const media = document.getElementById("radioMedia");
     const playBtn = document.getElementById("playBtn");
     const playIconSvg = document.getElementById("playIconSvg");
     const muteIcon = document.getElementById("muteIcon");
@@ -651,6 +645,7 @@
 
     let isPlaying = false;
     let currentTrackIndex = -1;
+    let targetSeekOffset = 0;
 
     function formatTime(seconds) {
       const s = Math.floor(seconds || 0);
@@ -659,44 +654,72 @@
       return `${m < 10 ? "0" : ""}${m}:${rem < 10 ? "0" : ""}${rem}`;
     }
 
+    // Doğru saniyeye güvenle atlama (metadata yüklendikten sonra)
+    function applySafeSeek(offset) {
+      targetSeekOffset = offset;
+      if (media.readyState >= 1 && media.duration && !isNaN(media.duration)) {
+        try {
+          const clamped = Math.max(0, Math.min(offset, media.duration - 0.5));
+          if (Math.abs(media.currentTime - clamped) > 1.5) {
+            media.currentTime = clamped;
+          }
+        } catch (e) {
+          console.warn("Seek hatası:", e);
+        }
+      } else {
+        const onMeta = () => {
+          media.removeEventListener("loadedmetadata", onMeta);
+          try {
+            const clamped = Math.max(0, Math.min(targetSeekOffset, (media.duration || 100) - 0.5));
+            media.currentTime = clamped;
+          } catch (_) {}
+        };
+        media.addEventListener("loadedmetadata", onMeta);
+      }
+    }
+
     function syncRadioToLive(forcePlay = false) {
       const live = getLiveBroadcastState();
       const currentSrcExpected = `Normal-Video-low-bit/${live.track.file}`;
-
-      if (currentTrackIndex !== live.trackIndex || !audio.src.includes(encodeURI(live.track.file))) {
-        currentTrackIndex = live.trackIndex;
-        audio.src = currentSrcExpected;
-        audio.load();
-        audio.currentTime = live.offset;
-      } else {
-        if (Math.abs(audio.currentTime - live.offset) > 2.0) {
-          audio.currentTime = live.offset;
-        }
-      }
 
       trackTitle.textContent = live.track.title;
       trackArtist.textContent = live.track.category;
       totalDurationEl.textContent = formatTime(live.track.duration);
 
+      // Kaynak değişimi gerekiyorsa ata
+      if (currentTrackIndex !== live.trackIndex || !media.src.includes(encodeURI(live.track.file))) {
+        currentTrackIndex = live.trackIndex;
+        media.src = currentSrcExpected;
+        media.load();
+      }
+
+      applySafeSeek(live.offset);
+
       if (forcePlay || isPlaying) {
-        audio.play().then(() => {
-          isPlaying = true;
-          updatePlayUI();
-        }).catch(() => {
-          isPlaying = false;
-          updatePlayUI();
-        });
+        const p = media.play();
+        if (p !== undefined) {
+          p.then(() => {
+            isPlaying = true;
+            updatePlayUI();
+          }).catch(err => {
+            console.warn("Tarayıcı otomatik çalmayı engelledi (kullanıcı dokunuşu bekleniyor):", err);
+            isPlaying = false;
+            updatePlayUI();
+            // İlk dokunuşta sesi açıp başlatacak kancayı kur
+            armFirstGestureUnlock();
+          });
+        }
       }
     }
 
     function togglePlayback() {
       if (isPlaying) {
-        audio.pause();
+        media.pause();
         isPlaying = false;
+        updatePlayUI();
       } else {
         syncRadioToLive(true);
       }
-      updatePlayUI();
     }
 
     function resyncToLive() {
@@ -704,8 +727,8 @@
     }
 
     function toggleMute() {
-      audio.muted = !audio.muted;
-      if (audio.muted) {
+      media.muted = !media.muted;
+      if (media.muted) {
         muteIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.73 4.73H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
       } else {
         muteIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
@@ -716,28 +739,49 @@
       if (isPlaying) {
         playIconSvg.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
         playerZone.classList.add("playing");
+        playBtn.classList.remove("needs-tap");
       } else {
         playIconSvg.innerHTML = '<path d="M8 5v14l11-7z"/>';
         playerZone.classList.remove("playing");
+        playBtn.classList.add("needs-tap");
       }
     }
 
-    audio.addEventListener("ended", () => {
+    // İlk dokunuşla sesi açan küresel kilit çözücü (Autoplay Policy Çözümü)
+    let isUnlocked = false;
+    function armFirstGestureUnlock() {
+      if (isUnlocked) return;
+      const events = ['pointerdown', 'touchstart', 'click', 'keydown'];
+      const triggerUnlock = () => {
+        isUnlocked = true;
+        events.forEach(e => window.removeEventListener(e, triggerUnlock, true));
+        if (!isPlaying) {
+          media.muted = false;
+          syncRadioToLive(true);
+        }
+      };
+      events.forEach(e => window.addEventListener(e, triggerUnlock, { once: true, capture: true }));
+    }
+
+    // Şarkı bitince sıradaki canlı parçaya otomatik geçiş
+    media.addEventListener("ended", () => {
       syncRadioToLive(true);
     });
 
+    // İlerleme çubuğunu ve süreyi sürekli güncelle
     setInterval(() => {
-      if (!audio.src) return;
+      if (!media.src) return;
       const live = getLiveBroadcastState();
-      const cur = isPlaying ? audio.currentTime : live.offset;
-      const dur = live.track.duration;
+      const cur = isPlaying ? media.currentTime : live.offset;
+      const dur = live.track.duration || 180;
       const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
 
       progressBar.style.width = pct + "%";
       currentTimeEl.textContent = formatTime(cur);
 
-      if (isPlaying && Math.abs(audio.currentTime - live.offset) > 3.0) {
-        audio.currentTime = live.offset;
+      // Canlı yayından 3 saniyeden fazla kayma olursa yumuşakça düzelt
+      if (isPlaying && Math.abs(media.currentTime - live.offset) > 3.0) {
+        applySafeSeek(live.offset);
       }
     }, 400);
 
@@ -840,15 +884,13 @@
     }
     animateRain();
 
+    // Sayfa açılışı
     window.addEventListener("DOMContentLoaded", () => {
-      syncRadioToLive(false);
+      // 1. Canlı yayına bağlan ve doğrudan başlatmayı dene
+      syncRadioToLive(true);
 
-      document.body.addEventListener("click", function firstClickInit() {
-        if (!isPlaying) {
-          togglePlayback();
-        }
-        document.body.removeEventListener("click", firstClickInit);
-      }, { once: true });
+      // 2. Eğer tarayıcı otomatik ses izni vermezse, ekrandaki ilk dokunuşla hemen başlat
+      armFirstGestureUnlock();
     });
   </script>
 </body>
