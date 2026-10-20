@@ -148,22 +148,42 @@
       color: #ffd60a;
     }
 
-    /* 2. LIVE PILL BADGE */
+    /* ========================================================
+       2. LIVE PILL BADGE (ALIGNED TO TOP-LEFT TIP OF PLAYER CARD & BLINKING)
+       ======================================================== */
     .live-pill-badge {
+      position: absolute;
+      top: -13px;
+      left: 18px;
+      z-index: 15;
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.35) 0%, rgba(18, 55, 30, 0.88) 100%);
-      border: 1.5px solid rgba(74, 222, 128, 0.65);
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.40) 0%, rgba(18, 55, 30, 0.95) 100%);
+      border: 1.5px solid rgba(74, 222, 128, 0.75);
       backdrop-filter: blur(28px) saturate(200%);
       -webkit-backdrop-filter: blur(28px) saturate(200%);
-      padding: 4px 16px;
+      padding: 4px 14px;
       border-radius: 999px;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.8px;
       color: #4ade80;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
+      animation: liveBlink 1.3s infinite ease-in-out;
+    }
+
+    @keyframes liveBlink {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 14px rgba(74, 222, 128, 0.75), inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
+      }
+      50% {
+        opacity: 0.20;
+        transform: scale(0.96);
+        box-shadow: 0 0 2px rgba(74, 222, 128, 0.1);
+      }
     }
 
     .live-dot-pulse {
@@ -181,14 +201,16 @@
     }
 
     /* ========================================================
-       3. DIGITAL DOT MATRIX CLOCK (DIRECTLY BELOW LIVE BADGE!)
+       3. DIGITAL DOT MATRIX CLOCK (10% ENLARGED)
        ======================================================== */
     .dot-matrix-clock-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 2px 0 0 0;
-      filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.85));
+      margin: 4px 0 2px 0;
+      filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.90));
+      transform: scale(1.10);
+      transform-origin: center center;
     }
 
     .dot-matrix-svg {
@@ -233,6 +255,7 @@
        ======================================================== */
     .now-playing-card {
       width: 100%;
+      margin-top: 10px;
       background: linear-gradient(
         135deg,
         rgba(255, 255, 255, 0.32) 0%,
@@ -517,33 +540,31 @@
   <main class="center-player-viewport">
     <div class="center-player-stack" id="playerZone">
 
-      <!-- 1. TAP TO LISTEN (ABOVE LIVE WITH BLINKING BORDER LINE) -->
+      <!-- 1. TAP TO LISTEN (WITH BLINKING BORDER LINE) -->
       <div class="tap-listen-badge" id="tapBadge" onclick="unlockAudioImmediately()">
         <span class="tap-icon">▶</span>
         <span id="tapBadgeText">Tap To Listen</span>
       </div>
 
-      <!-- 2. LIVE PILL BADGE -->
-      <div class="live-pill-badge">
-        <span class="live-dot-pulse"></span>
-        <span>LIVE</span>
-      </div>
-
-      <!-- ========================================================
-           3. DIGITAL DOT MATRIX CLOCK (DIRECTLY BELOW LIVE BADGE!)
-           ======================================================== -->
+      <!-- 2. DIGITAL DOT MATRIX CLOCK (10% ENLARGED) -->
       <div class="dot-matrix-clock-container" title="Dot Matrix Clock">
         <svg id="dotMatrixClock" class="dot-matrix-svg" viewBox="0 0 148 42"></svg>
       </div>
 
-      <!-- 4. BRAND TITLE & SUBTITLE -->
+      <!-- 3. BRAND TITLE & SUBTITLE -->
       <div class="main-title-wrap">
         <span class="brand-ambient">Ambient</span><span class="brand-lofi">Lofi</span>
       </div>
       <div class="sub-brand-text">Music Radio</div>
 
-      <!-- 5. ULTRA LIQUID GLASS NOW PLAYING CARD -->
+      <!-- 4. ULTRA LIQUID GLASS NOW PLAYING CARD -->
       <div class="now-playing-card">
+        <!-- LIVE BADGE (ALIGNED TO TOP-LEFT TIP OF THE CARD & BLINKING) -->
+        <div class="live-pill-badge">
+          <span class="live-dot-pulse"></span>
+          <span>LIVE</span>
+        </div>
+
         <div class="card-left-group">
           <!-- Album Thumbnail -->
           <img class="album-art-thumb" src="assets/album_thumb.jpg" alt="Album Art" />
