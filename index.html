@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- CarPlay ve mobil uyumlu 800x480 ve duyarlı ekran ayarı -->
+  <!-- Optimized for CarPlay (800x480) and modern responsive mobile/desktop viewports -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Ambient Lofi - Music Radio</title>
 
@@ -42,7 +42,7 @@
       position: relative;
     }
 
-    /* Arka Plan Resmi */
+    /* Cinematic Atmospheric Background */
     .ambient-bg {
       position: absolute;
       inset: 0;
@@ -55,7 +55,7 @@
       transform: scale(1.02);
     }
 
-    /* Karartma Gradyanı */
+    /* Ambient Contrast Gradient Overlay */
     .bg-gradient-overlay {
       position: absolute;
       inset: 0;
@@ -69,7 +69,7 @@
       pointer-events: none;
     }
 
-    /* Yağmur Efekti: Akıcı Canvas animasyonu */
+    /* Realistic Rain Canvas Layer */
     #rainCanvas {
       position: absolute;
       inset: 0;
@@ -79,7 +79,7 @@
       pointer-events: none;
     }
 
-    /* EKRANIN TAM ORTASINDAKİ MERKEZİ OYNATICI (PLAYER VIEW) */
+    /* CENTERED MAIN PLAYER VIEW */
     .center-player-viewport {
       position: absolute;
       inset: 0;
@@ -103,24 +103,52 @@
     }
 
     /* ========================================================
-       GERÇEK DIGITAL DOT MATRIX (LED NOKTA) SAAT
-       KONUMU: DOĞRUDAN LIVE YAZISININ TAM ÜSTÜNDE!
+       1. TAP TO LISTEN BADGE (ABOVE LIVE WITH BLINKING BORDER)
        ======================================================== */
-    .dot-matrix-clock-container {
-      display: flex;
+    .tap-listen-badge {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      margin-bottom: -2px;
-      filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.85));
+      gap: 7px;
+      background: rgba(14, 18, 28, 0.82);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      padding: 6px 18px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ffd60a;
+      cursor: pointer;
+      border: 1.8px solid #ffd60a;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      animation: blinkBorder 1.2s infinite ease-in-out;
+      transition: transform 0.15s ease, background 0.15s ease;
     }
 
-    .dot-matrix-svg {
-      width: 148px;
-      height: 38px;
-      display: block;
+    .tap-listen-badge:active {
+      transform: scale(0.94);
     }
 
-    /* 1. LIVE Hap Rozeti */
+    @keyframes blinkBorder {
+      0%, 100% {
+        border-color: #ffd60a;
+        box-shadow: 0 0 16px rgba(255, 214, 10, 0.80), inset 0 0 8px rgba(255, 214, 10, 0.30);
+        color: #ffffff;
+      }
+      50% {
+        border-color: rgba(255, 214, 10, 0.20);
+        box-shadow: 0 0 2px rgba(255, 214, 10, 0.05);
+        color: rgba(255, 255, 255, 0.65);
+      }
+    }
+
+    .tap-icon {
+      font-size: 10px;
+      color: #ffd60a;
+    }
+
+    /* 2. LIVE PILL BADGE */
     .live-pill-badge {
       display: inline-flex;
       align-items: center;
@@ -129,7 +157,7 @@
       border: 1.5px solid rgba(74, 222, 128, 0.65);
       backdrop-filter: blur(28px) saturate(200%);
       -webkit-backdrop-filter: blur(28px) saturate(200%);
-      padding: 5px 16px;
+      padding: 4px 16px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 800;
@@ -152,7 +180,24 @@
       50% { opacity: 0.35; transform: scale(0.85); }
     }
 
-    /* 2. Ambient Lofi Başlığı & Subtitle */
+    /* ========================================================
+       3. DIGITAL DOT MATRIX CLOCK (DIRECTLY BELOW LIVE BADGE!)
+       ======================================================== */
+    .dot-matrix-clock-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2px 0 0 0;
+      filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.85));
+    }
+
+    .dot-matrix-svg {
+      width: 148px;
+      height: 38px;
+      display: block;
+    }
+
+    /* 4. BRAND TITLE & SUBTITLE */
     .main-title-wrap {
       font-size: 42px;
       font-weight: 800;
@@ -160,6 +205,7 @@
       line-height: 1.05;
       text-shadow: 0 4px 22px rgba(0, 0, 0, 0.85);
       text-align: center;
+      margin-top: 2px;
     }
 
     .main-title-wrap .brand-ambient {
@@ -183,7 +229,7 @@
     }
 
     /* ========================================================
-       3. ULTRA İLERİ DÜZEY GLASSMORPHISM ŞARKI KARTI (SIVI CAM)
+       5. ULTRA LIQUID GLASS NOW PLAYING CARD
        ======================================================== */
     .now-playing-card {
       width: 100%;
@@ -253,7 +299,7 @@
       text-overflow: ellipsis;
     }
 
-    /* Canlı Ses Ekolayzer Çubukları */
+    /* Live Audio Equalizer Bars */
     .audio-eq-bars {
       display: flex;
       align-items: flex-end;
@@ -288,7 +334,7 @@
       50% { height: 22px; }
     }
 
-    /* 4. İlerleme Çubuğu & Süreler */
+    /* 6. TIMELINE & PROGRESS BAR */
     .timeline-container {
       width: 100%;
       display: flex;
@@ -336,7 +382,7 @@
       letter-spacing: 0.3px;
     }
 
-    /* 5. 3 Yuvarlak Medya Butonu (Glassmorphic) */
+    /* 7. THREE CIRCULAR MEDIA BUTTONS */
     .buttons-row {
       display: flex;
       align-items: center;
@@ -391,31 +437,6 @@
       border-color: #ffffff;
     }
 
-    /* İlk girişte çalmaya davet eden otomatik başlatma uyarısı */
-    .tap-to-play-hint {
-      position: absolute;
-      bottom: 12px;
-      background: rgba(0, 0, 0, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      padding: 6px 16px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #ffd60a;
-      letter-spacing: 0.5px;
-      animation: tapPulse 1.6s infinite ease-in-out;
-      cursor: pointer;
-      display: none;
-      z-index: 30;
-    }
-
-    @keyframes tapPulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(0.96); opacity: 0.8; }
-    }
-
     .btn-svg {
       width: 24px;
       height: 24px;
@@ -428,7 +449,7 @@
       fill: #ffffff;
     }
 
-    /* Görünür alanda 2px güvenli medya (WebKit throttled pause'u engeller) */
+    /* In-viewport 2px audio pipeline (prevents WebKit throttling) */
     #radioMedia {
       position: fixed;
       width: 2px;
@@ -440,7 +461,7 @@
       z-index: -1;
     }
 
-    /* CarPlay 800x480 ve Kısa Ekranlar İçin Kusursuz Merkezleme */
+    /* CarPlay 800x480 & Small Display Responsiveness */
     @media (max-height: 500px) {
       .dot-matrix-svg {
         width: 120px;
@@ -448,82 +469,93 @@
       }
       .center-player-stack {
         max-width: 460px;
-        gap: 6px;
+        gap: 5px;
       }
       .main-title-wrap {
-        font-size: 30px;
+        font-size: 28px;
       }
       .sub-brand-text {
-        font-size: 12px;
+        font-size: 11px;
         letter-spacing: 2px;
       }
       .now-playing-card {
-        padding: 9px 16px;
+        padding: 8px 16px;
         border-radius: 18px;
       }
       .album-art-thumb {
-        width: 50px;
-        height: 50px;
+        width: 48px;
+        height: 48px;
       }
       .song-title {
         font-size: 16px;
       }
       .center-play-btn {
-        width: 60px;
-        height: 60px;
+        width: 58px;
+        height: 58px;
       }
       .side-action-btn {
-        width: 44px;
-        height: 44px;
+        width: 42px;
+        height: 42px;
+      }
+      .tap-listen-badge {
+        padding: 4px 14px;
+        font-size: 11px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Arka Plan Resmi: Mevcut görsel korunur -->
+  <!-- Background Picture -->
   <div class="ambient-bg"></div>
   <div class="bg-gradient-overlay"></div>
 
-  <!-- Yağmur Efekti: Akıcı Canvas animasyonu -->
+  <!-- Rain Effect Canvas -->
   <canvas id="rainCanvas"></canvas>
 
-  <!-- EKRANIN TAM ORTASINDAKİ MERKEZİ OYNATICI (PLAYER VIEW) -->
+  <!-- CENTERED MAIN PLAYER VIEW -->
   <main class="center-player-viewport">
     <div class="center-player-stack" id="playerZone">
 
       <!-- ========================================================
-           GERÇEK DIGITAL DOT MATRIX (LED NOKTA) SAAT
-           KONUMU: LIVE YAZISININ TAM ÜSTÜNDE!
+           1. TAP TO LISTEN (ABOVE LIVE WITH BLINKING BORDER LINE)
            ======================================================== -->
-      <div class="dot-matrix-clock-container" title="Dot Matrix Clock">
-        <svg id="dotMatrixClock" class="dot-matrix-svg" viewBox="0 0 148 42"></svg>
+      <div class="tap-listen-badge" id="tapBadge" onclick="unlockAudioImmediately()">
+        <span class="tap-icon">▶</span>
+        <span id="tapBadgeText">TAP TO LISTEN</span>
       </div>
 
-      <!-- 1. LIVE Hap Rozeti -->
+      <!-- 2. LIVE PILL BADGE -->
       <div class="live-pill-badge">
         <span class="live-dot-pulse"></span>
         <span>LIVE</span>
       </div>
 
-      <!-- 2. Ambient Lofi Başlığı -->
+      <!-- ========================================================
+           3. DIGITAL DOT MATRIX CLOCK (DIRECTLY BELOW LIVE BADGE!)
+           ======================================================== -->
+      <div class="dot-matrix-clock-container" title="Dot Matrix Clock">
+        <svg id="dotMatrixClock" class="dot-matrix-svg" viewBox="0 0 148 42"></svg>
+      </div>
+
+      <!-- 4. BRAND TITLE & SUBTITLE -->
       <div class="main-title-wrap">
         <span class="brand-ambient">Ambient</span><span class="brand-lofi">Lofi</span>
       </div>
       <div class="sub-brand-text">Music Radio</div>
 
-      <!-- 3. ULTRA GLASSMORPHISM ŞARKI KARTI -->
+      <!-- 5. ULTRA LIQUID GLASS NOW PLAYING CARD -->
       <div class="now-playing-card">
         <div class="card-left-group">
-          <!-- Albüm Küçük Resmi -->
+          <!-- Album Thumbnail -->
           <img class="album-art-thumb" src="assets/album_thumb.jpg" alt="Album Art" />
           <div class="track-titles">
             <div class="song-title" id="trackTitle">Rainy Evening</div>
-            <div class="song-artist" id="trackArtist">Lofi Vibes</div>
+            <div class="song-artist" id="trackArtist">Lofi Vibes • 24/7 Live Stream</div>
           </div>
         </div>
 
-        <!-- Canlı Ekolayzer Çubukları -->
+        <!-- Live Audio Equalizer Bars -->
         <div class="audio-eq-bars" id="eqBars">
           <span class="eq-stick"></span>
           <span class="eq-stick"></span>
@@ -538,7 +570,7 @@
         </div>
       </div>
 
-      <!-- 4. İlerleme Çubuğu & Süreler -->
+      <!-- 6. TIMELINE & PROGRESS BAR -->
       <div class="timeline-container">
         <div class="progress-track">
           <div class="progress-fill" id="progressBar">
@@ -551,44 +583,39 @@
         </div>
       </div>
 
-      <!-- 5. 3 Yuvarlak Medya Butonu -->
+      <!-- 7. THREE CIRCULAR MEDIA BUTTONS -->
       <div class="buttons-row">
-        <!-- Sol: Ses (Mute / Unmute) -->
-        <button class="circle-btn side-action-btn" id="muteBtn" onclick="toggleMute()" title="Sesi Aç/Kapat" aria-label="Mute">
+        <!-- Left: Mute / Unmute -->
+        <button class="circle-btn side-action-btn" id="muteBtn" onclick="toggleMute()" title="Mute / Unmute" aria-label="Mute">
           <svg class="btn-svg" id="muteIcon" viewBox="0 0 24 24">
             <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
           </svg>
         </button>
 
-        <!-- Orta: Büyük Pause / Play Butonu -->
-        <button class="circle-btn center-play-btn" id="playBtn" onclick="togglePlayback()" title="Oynat / Duraklat" aria-label="Play/Pause">
+        <!-- Center: Play / Pause -->
+        <button class="circle-btn center-play-btn" id="playBtn" onclick="togglePlayback()" title="Play / Pause" aria-label="Play/Pause">
           <svg class="play-btn-svg" id="playIconSvg" viewBox="0 0 24 24">
             <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
           </svg>
         </button>
 
-        <!-- Sağ: Canlı Eşitleme (Re-sync) Butonu -->
-        <button class="circle-btn side-action-btn" onclick="resyncToLive()" title="Canlı Yayına Eşitle" aria-label="Sync Live">
+        <!-- Right: Sync to Live -->
+        <button class="circle-btn side-action-btn" onclick="resyncToLive()" title="Sync to Live Broadcast" aria-label="Sync Live">
           <svg class="btn-svg" viewBox="0 0 24 24">
             <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
           </svg>
         </button>
       </div>
 
-      <!-- Otomatik Başlatma İpucu (Tarayıcı engellediyse ekranda belirir ve ilk tıkta kaybolur) -->
-      <div class="tap-to-play-hint" id="tapHint" onclick="unlockAudioImmediately()">
-        ▶ DİNLEMEK İÇİN EKRANA DOKUNUN
-      </div>
-
     </div>
   </main>
 
-  <!-- HTML5 Video/Audio Elemanı (.mp4 dosyalarını kusursuz çalar) -->
+  <!-- HTML5 Media Element -->
   <video id="radioMedia" playsinline webkit-playsinline preload="auto"></video>
 
   <script>
     /* =====================================================================
-       1. STREAM YAPILANDIRMASI (DEĞERLER ASLA BOZULMAZ)
+       1. STREAM CONFIG (NEVER ALTER OR BREAK)
        ===================================================================== */
     const STREAM_CONFIG = Object.freeze(JSON.parse(document.getElementById("stream-config").textContent));
     if (STREAM_CONFIG.s9Tx === 1) {
@@ -599,7 +626,7 @@
     }
 
     /* =====================================================================
-       2. ŞARKI LİSTESİ VE SÜRELER (Normal-Video-low-bit .mp4)
+       2. TRACK CATALOG & PRECISE DURATIONS (Normal-Video-low-bit .mp4)
        ===================================================================== */
     const PLAYLIST = [
       { id: "Indigo_Window_Seat", title: "Indigo Window Seat", category: "Lofi Vibes", file: "Indigo_Window_Seat.mp4", duration: 146.17 },
@@ -641,7 +668,7 @@
     });
 
     /* =====================================================================
-       3. KÜRESEL CANLI SENKRONİZASYON MOTORU
+       3. GLOBAL SYNCHRONIZATION ENGINE
        ===================================================================== */
     function getLiveBroadcastState() {
       const nowSec = Date.now() / 1000;
@@ -662,7 +689,7 @@
     }
 
     /* =====================================================================
-       4. GÜVENLİ SES YÜRÜTME VE OTOMATİK ÇALMA YÖNETİMİ
+       4. AUDIO ENGINE & SEAMLESS AUTOPLAY UNLOCK
        ===================================================================== */
     const media = document.getElementById("radioMedia");
     const playBtn = document.getElementById("playBtn");
@@ -674,7 +701,8 @@
     const trackTitle = document.getElementById("trackTitle");
     const trackArtist = document.getElementById("trackArtist");
     const playerZone = document.getElementById("playerZone");
-    const tapHint = document.getElementById("tapHint");
+    const tapBadge = document.getElementById("tapBadge");
+    const tapBadgeText = document.getElementById("tapBadgeText");
 
     let isPlaying = false;
     let currentTrackIndex = -1;
@@ -715,7 +743,7 @@
       const currentSrcExpected = `Normal-Video-low-bit/${live.track.file}`;
 
       trackTitle.textContent = live.track.title;
-      trackArtist.textContent = live.track.category;
+      trackArtist.textContent = `${live.track.category} • 24/7 Live Stream`;
       totalDurationEl.textContent = formatTime(live.track.duration);
 
       if (currentTrackIndex !== live.trackIndex || !media.src.includes(encodeURI(live.track.file))) {
@@ -731,9 +759,7 @@
       }
     }
 
-    // İlk girişte otomatik başlatma fonksiyonu
     function attemptAutoplay() {
-      // 1. Önce doğrudan sesli çalmayı dene
       media.muted = false;
       const playPromise = media.play();
 
@@ -741,34 +767,26 @@
         playPromise.then(() => {
           isPlaying = true;
           updatePlayUI();
-          if (tapHint) tapHint.style.display = "none";
         }).catch(() => {
-          // 2. Tarayıcı unmuted sesi engellediyse, hemen muted olarak başlat (arka plan akışı başlar)
+          // Autoplay blocked: start muted in background & arm touch unlock
           media.muted = true;
           media.play().then(() => {
             isPlaying = true;
             updatePlayUI();
-            // Kullanıcıya ses için dokunma çağrısı göster
-            if (tapHint) tapHint.style.display = "block";
             armFullWindowUnlock();
           }).catch(() => {
-            // Tamamen engellendiyse dokunma bekle
             isPlaying = false;
             updatePlayUI();
-            if (tapHint) tapHint.style.display = "block";
             armFullWindowUnlock();
           });
         });
       }
     }
 
-    // Ekranda herhangi bir yere dokunulduğunda sesi anında açıp yayını başlatan kilit çözücü
     let unlocked = false;
     function unlockAudioImmediately() {
-      if (unlocked) return;
       unlocked = true;
       media.muted = false;
-      if (tapHint) tapHint.style.display = "none";
       syncRadioToLive(true);
     }
 
@@ -787,16 +805,12 @@
         isPlaying = false;
         updatePlayUI();
       } else {
-        media.muted = false;
-        if (tapHint) tapHint.style.display = "none";
-        syncRadioToLive(true);
+        unlockAudioImmediately();
       }
     }
 
     function resyncToLive() {
-      media.muted = false;
-      if (tapHint) tapHint.style.display = "none";
-      syncRadioToLive(true);
+      unlockAudioImmediately();
     }
 
     function toggleMute() {
@@ -806,15 +820,23 @@
       } else {
         muteIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
       }
+      updatePlayUI();
     }
 
     function updatePlayUI() {
       if (isPlaying && !media.muted) {
         playIconSvg.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
         playerZone.classList.add("playing");
+        tapBadgeText.textContent = "NOW STREAMING";
+        tapBadge.style.animation = "none";
+        tapBadge.style.borderColor = "rgba(74, 222, 128, 0.7)";
+        tapBadge.style.color = "#4ade80";
+        tapBadge.style.boxShadow = "0 0 12px rgba(74, 222, 128, 0.35)";
       } else {
         playIconSvg.innerHTML = '<path d="M8 5v14l11-7z"/>';
         playerZone.classList.remove("playing");
+        tapBadgeText.textContent = "TAP TO LISTEN";
+        tapBadge.style.animation = "blinkBorder 1.2s infinite ease-in-out";
       }
     }
 
@@ -838,8 +860,7 @@
     }, 400);
 
     /* =====================================================================
-       5. GERÇEK DIGITAL DOT MATRIX (LED NOKTA) SAAT ÇİZİCİSİ
-       HER RAKAM 5x7 NOKTA IZGARASI İLE ÇİZİLİR
+       5. PHYSICAL 5x7 LED DOT MATRIX CLOCK (DIRECTLY BELOW LIVE BADGE!)
        ===================================================================== */
     const DOT_PATTERNS = {
       '0': ['01110','10001','10011','10101','11001','10001','01110'],
@@ -896,7 +917,7 @@
     setInterval(renderDotMatrixClock, 1000);
 
     /* =====================================================================
-       6. YAĞMUR ANİMASYONU
+       6. RAIN CANVAS ANIMATION
        ===================================================================== */
     const rainCanvas = document.getElementById("rainCanvas");
     const rCtx = rainCanvas.getContext("2d");
@@ -981,7 +1002,7 @@
     }
     animateRain();
 
-    // Sayfa açılışı
+    // DOM Ready: Attempt instant playback on entry
     window.addEventListener("DOMContentLoaded", () => {
       syncRadioToLive(true);
     });
