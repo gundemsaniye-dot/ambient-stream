@@ -517,12 +517,10 @@
   <main class="center-player-viewport">
     <div class="center-player-stack" id="playerZone">
 
-      <!-- ========================================================
-           1. TAP TO LISTEN (ABOVE LIVE WITH BLINKING BORDER LINE)
-           ======================================================== -->
+      <!-- 1. TAP TO LISTEN (ABOVE LIVE WITH BLINKING BORDER LINE) -->
       <div class="tap-listen-badge" id="tapBadge" onclick="unlockAudioImmediately()">
         <span class="tap-icon">▶</span>
-        <span id="tapBadgeText">TAP TO LISTEN</span>
+        <span id="tapBadgeText">Tap To Listen</span>
       </div>
 
       <!-- 2. LIVE PILL BADGE -->
@@ -827,17 +825,11 @@
       if (isPlaying && !media.muted) {
         playIconSvg.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
         playerZone.classList.add("playing");
-        tapBadgeText.textContent = "NOW STREAMING";
-        tapBadge.style.animation = "none";
-        tapBadge.style.borderColor = "rgba(74, 222, 128, 0.7)";
-        tapBadge.style.color = "#4ade80";
-        tapBadge.style.boxShadow = "0 0 12px rgba(74, 222, 128, 0.35)";
       } else {
         playIconSvg.innerHTML = '<path d="M8 5v14l11-7z"/>';
         playerZone.classList.remove("playing");
-        tapBadgeText.textContent = "TAP TO LISTEN";
-        tapBadge.style.animation = "blinkBorder 1.2s infinite ease-in-out";
       }
+      tapBadgeText.textContent = "Tap To Listen";
     }
 
     media.addEventListener("ended", () => {
