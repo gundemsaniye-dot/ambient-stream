@@ -23,6 +23,15 @@
   </script>
 
   <style>
+    /* Digital Dot Font (Nothing Font 5x7 Dot Matrix) */
+    @font-face {
+      font-family: 'DigitalDot';
+      src: url('assets/nothing.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -79,19 +88,6 @@
       pointer-events: none;
     }
 
-    /* SOL ÜST KÖŞE: Dijital Saat */
-    .corner-clock {
-      position: absolute;
-      top: 26px;
-      left: 32px;
-      z-index: 20;
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      color: #ffffff;
-      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
-    }
-
     /* EKRANIN TAM ORTASINDAKİ MERKEZİ OYNATICI (PLAYER VIEW) */
     .center-player-viewport {
       position: absolute;
@@ -106,31 +102,47 @@
 
     .center-player-stack {
       width: 100%;
-      max-width: 500px;
+      max-width: 510px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       pointer-events: auto;
       margin: auto;
     }
 
-    /* 1. LIVE Hap Rozeti (Artırılmış Glass Efekti) */
+    /* DIGITAL DOT FONT SAAT (LIVE ROZETİNİN TAM ÜSTÜNDE) */
+    .dot-matrix-clock {
+      font-family: 'DigitalDot', monospace;
+      font-size: 38px;
+      line-height: 1;
+      letter-spacing: 5px;
+      color: #ffffff;
+      text-shadow: 
+        0 0 12px rgba(255, 255, 255, 0.8),
+        0 0 24px rgba(255, 255, 255, 0.4);
+      margin-bottom: -2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 1. LIVE Hap Rozeti */
     .live-pill-badge {
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.25) 0%, rgba(18, 55, 30, 0.80) 100%);
-      border: 1.5px solid rgba(74, 222, 128, 0.55);
-      backdrop-filter: blur(28px) saturate(190%);
-      -webkit-backdrop-filter: blur(28px) saturate(190%);
-      padding: 5px 15px;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.30) 0%, rgba(18, 55, 30, 0.85) 100%);
+      border: 1.5px solid rgba(74, 222, 128, 0.60);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      padding: 5px 16px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 800;
       letter-spacing: 0.8px;
       color: #4ade80;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
     }
 
     .live-dot-pulse {
@@ -153,7 +165,7 @@
       font-weight: 800;
       letter-spacing: -0.8px;
       line-height: 1.05;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 4px 22px rgba(0, 0, 0, 0.85);
       text-align: center;
     }
 
@@ -167,9 +179,9 @@
     }
 
     .sub-brand-text {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.78);
+      color: rgba(255, 255, 255, 0.80);
       letter-spacing: 3px;
       text-transform: uppercase;
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
@@ -177,24 +189,24 @@
       margin-bottom: 2px;
     }
 
-    /* 3. YÜKSEK GLASSMORPHISM ŞARKI KARTI (Liquid Glass & Işık Yansıması) */
+    /* 3. ULTRA İLERİ DÜZEY GLASSMORPHISM ŞARKI KARTI (Sıvı Cam, Çift Işık ve Yansıma) */
     .now-playing-card {
       width: 100%;
       background: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.22) 0%,
-        rgba(255, 255, 255, 0.06) 35%,
-        rgba(10, 15, 26, 0.72) 100%
+        rgba(255, 255, 255, 0.28) 0%,
+        rgba(255, 255, 255, 0.08) 35%,
+        rgba(10, 16, 28, 0.70) 100%
       );
-      backdrop-filter: blur(48px) saturate(220%);
-      -webkit-backdrop-filter: blur(48px) saturate(220%);
-      border: 1.5px solid rgba(255, 255, 255, 0.32);
-      border-radius: 22px;
-      padding: 13px 20px;
+      backdrop-filter: blur(52px) saturate(230%);
+      -webkit-backdrop-filter: blur(52px) saturate(230%);
+      border: 1.8px solid rgba(255, 255, 255, 0.40);
+      border-radius: 24px;
+      padding: 14px 22px;
       box-shadow: 
-        0 24px 60px rgba(0, 0, 0, 0.75),
-        inset 0 1.5px 2px rgba(255, 255, 255, 0.45),
-        inset 0 -1.5px 2px rgba(0, 0, 0, 0.45);
+        0 28px 70px rgba(0, 0, 0, 0.82),
+        inset 0 2px 3px rgba(255, 255, 255, 0.60),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.45);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -205,18 +217,18 @@
     .card-left-group {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 15px;
       overflow: hidden;
     }
 
     .album-art-thumb {
-      width: 62px;
-      height: 62px;
+      width: 64px;
+      height: 64px;
       border-radius: 14px;
       object-fit: cover;
       flex-shrink: 0;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
     }
 
     .track-titles {
@@ -234,13 +246,13 @@
       overflow: hidden;
       text-overflow: ellipsis;
       letter-spacing: -0.2px;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
     }
 
     .song-artist {
       font-size: 13px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.72);
+      color: rgba(255, 255, 255, 0.75);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -258,11 +270,11 @@
 
     .eq-stick {
       width: 3.5px;
-      background: rgba(255, 255, 255, 0.90);
+      background: rgba(255, 255, 255, 0.95);
       border-radius: 2px;
       height: 5px;
       transition: height 0.15s ease;
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
     }
 
     .playing .eq-stick:nth-child(1) { animation: bounceEq 0.65s infinite ease-in-out; }
@@ -292,10 +304,10 @@
     .progress-track {
       width: 100%;
       height: 5px;
-      background: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.25);
       border-radius: 999px;
       position: relative;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45);
     }
 
     .progress-fill {
@@ -304,7 +316,7 @@
       background: #ffd60a;
       border-radius: 999px;
       position: relative;
-      box-shadow: 0 0 12px rgba(255, 214, 10, 0.7);
+      box-shadow: 0 0 12px rgba(255, 214, 10, 0.8);
       transition: width 0.3s linear;
     }
 
@@ -325,7 +337,7 @@
       justify-content: space-between;
       font-size: 13px;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.72);
+      color: rgba(255, 255, 255, 0.75);
       letter-spacing: 0.3px;
     }
 
@@ -355,43 +367,42 @@
     .side-action-btn {
       width: 54px;
       height: 54px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 100%);
-      border: 1.5px solid rgba(255, 255, 255, 0.38);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.42);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 1.5px rgba(255, 255, 255, 0.45);
     }
 
     .side-action-btn:hover {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.10) 100%);
-      border-color: rgba(255, 255, 255, 0.65);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.12) 100%);
+      border-color: rgba(255, 255, 255, 0.70);
     }
 
     .center-play-btn {
       width: 74px;
       height: 74px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 100%);
-      border: 2.8px solid rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.10) 100%);
+      border: 3px solid rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
       box-shadow: 
-        0 10px 32px rgba(0, 0, 0, 0.65), 
-        inset 0 2px 3px rgba(255, 255, 255, 0.6);
+        0 12px 36px rgba(0, 0, 0, 0.70), 
+        inset 0 2px 3px rgba(255, 255, 255, 0.7);
     }
 
     .center-play-btn:hover {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 100%);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.18) 100%);
       border-color: #ffffff;
     }
 
-    /* İlk girişte çalmaya davet eden hafif nabız efekti */
     .needs-tap {
       animation: tapPulse 1.6s infinite ease-in-out;
     }
 
     @keyframes tapPulse {
-      0%, 100% { box-shadow: 0 10px 32px rgba(0, 0, 0, 0.65), inset 0 2px 3px rgba(255, 255, 255, 0.6); }
-      50% { box-shadow: 0 10px 36px rgba(255, 214, 10, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.8); border-color: #ffd60a; }
+      0%, 100% { box-shadow: 0 12px 36px rgba(0, 0, 0, 0.70), inset 0 2px 3px rgba(255, 255, 255, 0.7); }
+      50% { box-shadow: 0 12px 40px rgba(255, 214, 10, 0.6), inset 0 2px 3px rgba(255, 255, 255, 0.9); border-color: #ffd60a; }
     }
 
     .btn-svg {
@@ -406,7 +417,6 @@
       fill: #ffffff;
     }
 
-    /* Video/Audio elementi: MP4 sesini kesintisiz demux eder */
     #radioMedia {
       position: fixed;
       width: 1px;
@@ -419,14 +429,13 @@
 
     /* CarPlay 800x480 ve Kısa Ekranlar İçin Kusursuz Merkezleme */
     @media (max-height: 500px) {
-      .corner-clock {
-        top: 14px;
-        left: 20px;
-        font-size: 20px;
+      .dot-matrix-clock {
+        font-size: 28px;
+        letter-spacing: 4px;
       }
       .center-player-stack {
         max-width: 460px;
-        gap: 8px;
+        gap: 7px;
       }
       .main-title-wrap {
         font-size: 32px;
@@ -436,12 +445,12 @@
         letter-spacing: 2px;
       }
       .now-playing-card {
-        padding: 8px 14px;
-        border-radius: 16px;
+        padding: 9px 16px;
+        border-radius: 18px;
       }
       .album-art-thumb {
-        width: 48px;
-        height: 48px;
+        width: 50px;
+        height: 50px;
       }
       .song-title {
         font-size: 16px;
@@ -466,12 +475,12 @@
   <!-- Yağmur Efekti: Akıcı Canvas animasyonu -->
   <canvas id="rainCanvas"></canvas>
 
-  <!-- Sol Üst: Saat (Hava Durumu Silindi!) -->
-  <div class="corner-clock" id="liveClock">01:51</div>
-
   <!-- EKRANIN TAM ORTASINDAKİ MERKEZİ OYNATICI (PLAYER VIEW) -->
   <main class="center-player-viewport">
     <div class="center-player-stack" id="playerZone">
+
+      <!-- DIGITAL DOT FONT SAAT (LIVE ROZETİNİN TAM ÜSTÜNDE) -->
+      <div class="dot-matrix-clock" id="centerDotClock">02:12</div>
 
       <!-- 1. LIVE Hap Rozeti -->
       <div class="live-pill-badge">
@@ -485,7 +494,7 @@
       </div>
       <div class="sub-brand-text">Music Radio</div>
 
-      <!-- 3. Buzlu Cam Şarkı Kartı -->
+      <!-- 3. ULTRA GLASSMORPHISM ŞARKI KARTI -->
       <div class="now-playing-card">
         <div class="card-left-group">
           <!-- Albüm Küçük Resmi -->
@@ -654,7 +663,6 @@
       return `${m < 10 ? "0" : ""}${m}:${rem < 10 ? "0" : ""}${rem}`;
     }
 
-    // Doğru saniyeye güvenle atlama (metadata yüklendikten sonra)
     function applySafeSeek(offset) {
       targetSeekOffset = offset;
       if (media.readyState >= 1 && media.duration && !isNaN(media.duration)) {
@@ -686,7 +694,6 @@
       trackArtist.textContent = live.track.category;
       totalDurationEl.textContent = formatTime(live.track.duration);
 
-      // Kaynak değişimi gerekiyorsa ata
       if (currentTrackIndex !== live.trackIndex || !media.src.includes(encodeURI(live.track.file))) {
         currentTrackIndex = live.trackIndex;
         media.src = currentSrcExpected;
@@ -705,7 +712,6 @@
             console.warn("Tarayıcı otomatik çalmayı engelledi (kullanıcı dokunuşu bekleniyor):", err);
             isPlaying = false;
             updatePlayUI();
-            // İlk dokunuşta sesi açıp başlatacak kancayı kur
             armFirstGestureUnlock();
           });
         }
@@ -747,7 +753,6 @@
       }
     }
 
-    // İlk dokunuşla sesi açan küresel kilit çözücü (Autoplay Policy Çözümü)
     let isUnlocked = false;
     function armFirstGestureUnlock() {
       if (isUnlocked) return;
@@ -763,12 +768,10 @@
       events.forEach(e => window.addEventListener(e, triggerUnlock, { once: true, capture: true }));
     }
 
-    // Şarkı bitince sıradaki canlı parçaya otomatik geçiş
     media.addEventListener("ended", () => {
       syncRadioToLive(true);
     });
 
-    // İlerleme çubuğunu ve süreyi sürekli güncelle
     setInterval(() => {
       if (!media.src) return;
       const live = getLiveBroadcastState();
@@ -779,20 +782,19 @@
       progressBar.style.width = pct + "%";
       currentTimeEl.textContent = formatTime(cur);
 
-      // Canlı yayından 3 saniyeden fazla kayma olursa yumuşakça düzelt
       if (isPlaying && Math.abs(media.currentTime - live.offset) > 3.0) {
         applySafeSeek(live.offset);
       }
     }, 400);
 
     /* =====================================================================
-       5. CANLI DİJİTAL SAAT
+       5. DIGITAL DOT FONT SAAT (LIVE ROZETİNİN ÜSTÜNDE)
        ===================================================================== */
     function updateClock() {
       const now = new Date();
       const h = String(now.getHours()).padStart(2, '0');
       const m = String(now.getMinutes()).padStart(2, '0');
-      const clockEl = document.getElementById("liveClock");
+      const clockEl = document.getElementById("centerDotClock");
       if (clockEl) clockEl.textContent = `${h}:${m}`;
     }
     updateClock();
@@ -884,12 +886,8 @@
     }
     animateRain();
 
-    // Sayfa açılışı
     window.addEventListener("DOMContentLoaded", () => {
-      // 1. Canlı yayına bağlan ve doğrudan başlatmayı dene
       syncRadioToLive(true);
-
-      // 2. Eğer tarayıcı otomatik ses izni vermezse, ekrandaki ilk dokunuşla hemen başlat
       armFirstGestureUnlock();
     });
   </script>
