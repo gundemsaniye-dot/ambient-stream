@@ -123,11 +123,17 @@
       border: 1.8px solid #ffd60a;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
       animation: blinkBorder 1.2s infinite ease-in-out;
-      transition: transform 0.15s ease, background 0.15s ease;
+      transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
     }
 
     .tap-listen-badge:active {
       transform: scale(0.94);
+    }
+
+    .tap-listen-badge.fade-out {
+      opacity: 0 !important;
+      transform: translateY(-8px) scale(0.92) !important;
+      pointer-events: none !important;
     }
 
     @keyframes blinkBorder {
@@ -149,55 +155,53 @@
     }
 
     /* ========================================================
-       2. LIVE PILL BADGE (ALIGNED TO TOP-LEFT TIP OF PLAYER CARD & BLINKING)
+       2. LIVE PILL BADGE (ABOVE PLAYER CARD, NO TOUCH/OVERLAP & SLOW CALM BREATHING)
        ======================================================== */
     .live-pill-badge {
       position: absolute;
-      top: -13px;
-      left: 18px;
+      bottom: calc(100% + 9px);
+      left: 14px;
       z-index: 15;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.40) 0%, rgba(18, 55, 30, 0.95) 100%);
-      border: 1.5px solid rgba(74, 222, 128, 0.75);
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.35) 0%, rgba(18, 55, 30, 0.92) 100%);
+      border: 1.5px solid rgba(74, 222, 128, 0.70);
       backdrop-filter: blur(28px) saturate(200%);
       -webkit-backdrop-filter: blur(28px) saturate(200%);
-      padding: 4px 14px;
+      padding: 4px 13px;
       border-radius: 999px;
       font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.8px;
       color: #4ade80;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
-      animation: liveBlink 1.3s infinite ease-in-out;
+      animation: liveSlowBreathe 3.4s infinite ease-in-out;
     }
 
-    @keyframes liveBlink {
+    @keyframes liveSlowBreathe {
       0%, 100% {
         opacity: 1;
-        transform: scale(1);
-        box-shadow: 0 0 14px rgba(74, 222, 128, 0.75), inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 12px rgba(74, 222, 128, 0.65), inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
       }
       50% {
-        opacity: 0.20;
-        transform: scale(0.96);
-        box-shadow: 0 0 2px rgba(74, 222, 128, 0.1);
+        opacity: 0.55;
+        box-shadow: 0 0 3px rgba(74, 222, 128, 0.15), inset 0 1px 1.5px rgba(255, 255, 255, 0.25);
       }
     }
 
     .live-dot-pulse {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: #4ade80;
-      box-shadow: 0 0 10px #4ade80;
-      animation: pulseGreen 1.8s infinite ease-in-out;
+      box-shadow: 0 0 8px #4ade80;
+      animation: pulseGreen 3.4s infinite ease-in-out;
     }
 
     @keyframes pulseGreen {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.35; transform: scale(0.85); }
+      50% { opacity: 0.45; transform: scale(0.9); }
     }
 
     /* ========================================================
@@ -255,7 +259,7 @@
        ======================================================== */
     .now-playing-card {
       width: 100%;
-      margin-top: 10px;
+      margin-top: 26px;
       background: linear-gradient(
         135deg,
         rgba(255, 255, 255, 0.32) 0%,
@@ -504,6 +508,12 @@
       .now-playing-card {
         padding: 8px 16px;
         border-radius: 18px;
+        margin-top: 22px;
+      }
+      .live-pill-badge {
+        bottom: calc(100% + 7px);
+        font-size: 10px;
+        padding: 3px 11px;
       }
       .album-art-thumb {
         width: 48px;
@@ -786,6 +796,7 @@
         playPromise.then(() => {
           isPlaying = true;
           updatePlayUI();
+          hideTapBadge();
         }).catch(() => {
           // Autoplay blocked: start muted in background & arm touch unlock
           media.muted = true;
@@ -803,9 +814,23 @@
     }
 
     let unlocked = false;
+    let tapBadgeDismissed = false;
+
+    function hideTapBadge() {
+      if (tapBadgeDismissed) return;
+      tapBadgeDismissed = true;
+      const tb = document.getElementById("tapBadge");
+      if (!tb) return;
+      tb.classList.add("fade-out");
+      setTimeout(() => {
+        tb.style.display = "none";
+      }, 350);
+    }
+
     function unlockAudioImmediately() {
       unlocked = true;
       media.muted = false;
+      hideTapBadge();
       syncRadioToLive(true);
     }
 
@@ -846,11 +871,11 @@
       if (isPlaying && !media.muted) {
         playIconSvg.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
         playerZone.classList.add("playing");
+        hideTapBadge();
       } else {
         playIconSvg.innerHTML = '<path d="M8 5v14l11-7z"/>';
         playerZone.classList.remove("playing");
       }
-      tapBadgeText.textContent = "Tap To Listen";
     }
 
     media.addEventListener("ended", () => {
