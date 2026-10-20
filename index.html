@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <!-- CarPlay ve mobil uyumlu 800x480 ve duyarlı ekran ayarı -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Ambient Radio - CarPlay Live Stream</title>
+  <title>Ambient Lofi - Music Radio</title>
 
   <!-- Stream settings (cosmetic key names; no security guarantee):
        r7Nq = GPS_TRACKING_ENABLED: 0 makes no location requests and waits v2Kp seconds;
@@ -30,20 +30,20 @@
       user-select: none;
       -webkit-user-select: none;
       -webkit-tap-highlight-color: transparent;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
     }
 
     html, body {
       width: 100vw;
       height: 100vh;
-      background: #06070a;
+      background: #080a0f;
       color: #ffffff;
       overflow: hidden;
       position: relative;
     }
 
-    /* Tam Ekran Sinematik Arka Plan Resmi (Tasarım 2) */
-    .cinematic-bg {
+    /* Arka Plan Resmi: Bizim mevcut sinematik görselimiz korunur */
+    .ambient-bg {
       position: absolute;
       inset: 0;
       background-image: url('assets/carplay_bg.jpg');
@@ -51,25 +51,25 @@
       background-position: center center;
       background-repeat: no-repeat;
       z-index: 0;
-      filter: brightness(0.82) contrast(1.08);
+      filter: brightness(0.85) contrast(1.05);
       transform: scale(1.02);
     }
 
-    /* Sinematik Karartma & Gradyan (Butonların ve Yazıların Okunurluğu İçin) */
-    .bg-overlay {
+    /* Karartma Gradyanı: Butonlar ve yazılar için kusursuz kontrast */
+    .bg-gradient-overlay {
       position: absolute;
       inset: 0;
       background: linear-gradient(
         180deg,
-        rgba(5, 7, 12, 0.45) 0%,
-        rgba(5, 7, 12, 0.20) 45%,
-        rgba(4, 6, 10, 0.88) 100%
+        rgba(5, 7, 12, 0.40) 0%,
+        rgba(5, 7, 12, 0.15) 40%,
+        rgba(4, 6, 10, 0.75) 100%
       );
       z-index: 1;
       pointer-events: none;
     }
 
-    /* Sadece Yağmur Efekti: Canvas Katmanı */
+    /* Yağmur Efekti: Bizim kodumuzdaki akıcı Canvas animasyonu korunur */
     #rainCanvas {
       position: absolute;
       inset: 0;
@@ -79,460 +79,486 @@
       pointer-events: none;
     }
 
-    /* CarPlay Ana Sahne Konteyneri */
-    .carplay-stage {
+    /* Ana Arayüz Katmanı (Referans Görsel Birebir) */
+    .lofi-ui-container {
       position: relative;
       z-index: 10;
       width: 100vw;
       height: 100vh;
       display: flex;
-      padding: 16px 20px 16px 16px;
-      gap: 16px;
-    }
-
-    /* Standart Apple CarPlay Sol Dock (Kenar Çubuğu) */
-    .carplay-dock {
-      width: 58px;
-      height: 100%;
-      background: rgba(14, 17, 24, 0.75);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 22px;
-      display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: space-between;
-      padding: 16px 8px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-      flex-shrink: 0;
-    }
-
-    .dock-top {
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 12px;
+      padding: 24px 32px 32px 32px;
     }
 
-    .dock-clock {
-      font-size: 14px;
+    /* ÜST KISIM: Sol Saat, Orta Başlık & Live Rozeti, Sağ Hava Durumu */
+    .top-header-bar {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    /* Sol Üst: Saat */
+    .top-clock {
+      font-size: 24px;
       font-weight: 700;
-      letter-spacing: -0.2px;
+      letter-spacing: -0.5px;
       color: #ffffff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+      min-width: 80px;
     }
 
-    .dock-status-icons {
+    /* Orta Üst: LIVE Rozeti ve Ambient Lofi Başlığı */
+    .center-branding {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 7px;
-      color: rgba(255, 255, 255, 0.85);
+      gap: 6px;
+      margin-top: -4px;
     }
 
-    .dock-icon-svg {
-      width: 17px;
-      height: 17px;
-      fill: currentColor;
-    }
-
-    .dock-home-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.10);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease;
-    }
-
-    .dock-home-btn:active {
-      transform: scale(0.92);
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    .home-grid-icon {
-      width: 18px;
-      height: 18px;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 3px;
-    }
-
-    .home-grid-icon span {
-      background: #ffffff;
-      border-radius: 2px;
-    }
-
-    /* Ana İçerik Alanı (Sinematik Tam Ekran ve Altta Yüzen Kart) */
-    .carplay-main {
-      flex: 1;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-    }
-
-    /* Üst Canlı Bilgi Şeridi */
-    .top-meta-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 4px;
-    }
-
-    .live-broadcast-pill {
+    /* LIVE Hap Rozet */
+    .live-pill-badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(12, 15, 22, 0.75);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      padding: 7px 16px;
+      gap: 7px;
+      background: rgba(18, 55, 30, 0.85);
+      border: 1px solid rgba(48, 209, 88, 0.45);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 5px 14px;
       border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: #30d158;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: #34d399;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
-    .live-pulse-dot {
-      width: 9px;
-      height: 9px;
+    .live-dot-pulse {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: #30d158;
-      box-shadow: 0 0 10px #30d158;
-      animation: pulseAnim 1.8s infinite ease-in-out;
+      background: #34d399;
+      box-shadow: 0 0 10px #34d399;
+      animation: pulseGreen 1.8s infinite ease-in-out;
     }
 
-    @keyframes pulseAnim {
+    @keyframes pulseGreen {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
+      50% { opacity: 0.35; transform: scale(0.85); }
     }
 
-    .top-station-badge {
-      font-size: 13px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.85);
-      background: rgba(12, 15, 22, 0.65);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      letter-spacing: 0.3px;
+    /* Büyük Başlık: Ambient Lofi */
+    .main-title-wrap {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      line-height: 1.1;
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
     }
 
-    /* ALTA YÜZEN BUZLU CAM CARPLAY KONTROL KARTI (Tasarım 2'nin Yıldızı) */
-    .floating-control-card {
-      background: rgba(14, 17, 26, 0.82);
+    .main-title-wrap .brand-ambient {
+      color: #ffffff;
+    }
+
+    .main-title-wrap .brand-lofi {
+      color: #f28b82;
+      margin-left: 6px;
+    }
+
+    .sub-brand-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Sağ Üst: Hava Durumu */
+    .top-weather {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+      min-width: 80px;
+      justify-content: flex-end;
+    }
+
+    .weather-icon-svg {
+      width: 26px;
+      height: 26px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ORTA VE ALT ALAN: Kart, İlerleme Çubuğu ve Butonlar */
+    .player-controls-zone {
+      width: 100%;
+      max-width: 530px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    /* Referans Resimdeki Yüzen Buzlu Cam Şarkı Kartı */
+    .now-playing-card {
+      width: 100%;
+      background: rgba(18, 22, 32, 0.68);
       backdrop-filter: blur(32px) saturate(180%);
       -webkit-backdrop-filter: blur(32px) saturate(180%);
-      border: 1.5px solid rgba(255, 255, 255, 0.16);
-      border-radius: 26px;
-      padding: 18px 24px;
-      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7);
-      display: grid;
-      grid-template-columns: 1.4fr 1.6fr 1.1fr;
-      align-items: center;
-      gap: 20px;
-    }
-
-    /* Sol Kısım: Şarkı Bilgileri */
-    .card-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      overflow: hidden;
-    }
-
-    .track-badge-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .track-category-tag {
-      font-size: 11px;
-      font-weight: 800;
-      color: #ffd60a;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-
-    .track-sync-indicator {
-      font-size: 11px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.65);
-    }
-
-    .track-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: #ffffff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      letter-spacing: -0.3px;
-    }
-
-    .track-subtitle {
-      font-size: 13px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.68);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Orta Kısım: Senkronize Canlı Zaman Çubuğu */
-    .card-timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      justify-content: center;
-    }
-
-    .progress-bar-wrap {
-      width: 100%;
-      height: 7px;
-      background: rgba(255, 255, 255, 0.14);
-      border-radius: 999px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .progress-bar-fill {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #ffd60a 0%, #ffe359 100%);
-      border-radius: 999px;
-      transition: width 0.3s linear;
-    }
-
-    .timeline-labels {
+      border: 1.2px solid rgba(255, 255, 255, 0.16);
+      border-radius: 20px;
+      padding: 12px 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 12px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.7);
+      gap: 16px;
     }
 
-    .live-synced-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      color: #ffd60a;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* Sağ Kısım: CarPlay Medya Tuşları */
-    .card-controls {
+    .card-left-group {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      gap: 12px;
+      gap: 14px;
+      overflow: hidden;
     }
 
-    .ctrl-btn {
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+    /* Albüm Küçük Resmi */
+    .album-art-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .track-titles {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+    }
+
+    .song-title {
+      font-size: 19px;
+      font-weight: 700;
       color: #ffffff;
-      border-radius: 50%;
-      width: 46px;
-      height: 46px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 17px;
-      transition: transform 0.12s ease, background 0.15s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.2px;
     }
 
-    .ctrl-btn:active {
-      transform: scale(0.92);
-      background: rgba(255, 255, 255, 0.25);
-    }
-
-    /* Büyük Apple Play/Pause Tuşu */
-    .play-btn-main {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #ffd60a;
-      color: #000000;
-      border: none;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 22px rgba(255, 214, 10, 0.4);
-      transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .play-btn-main:active {
-      transform: scale(0.92);
-      background: #e6c000;
-    }
-
-    .sync-btn {
-      border-radius: 16px;
-      width: auto;
-      padding: 0 14px;
-      height: 46px;
-      gap: 6px;
+    .song-artist {
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.65);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Referans Resimdeki Sağ Canlı Ses Ekolayzer Çubukları */
+    .audio-eq-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 24px;
+      padding-right: 6px;
+      flex-shrink: 0;
+    }
+
+    .eq-stick {
+      width: 3.5px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 2px;
+      height: 5px;
+      transition: height 0.15s ease;
+    }
+
+    .playing .eq-stick:nth-child(1) { animation: bounceEq 0.65s infinite ease-in-out; }
+    .playing .eq-stick:nth-child(2) { animation: bounceEq 0.42s infinite ease-in-out 0.1s; }
+    .playing .eq-stick:nth-child(3) { animation: bounceEq 0.78s infinite ease-in-out 0.2s; }
+    .playing .eq-stick:nth-child(4) { animation: bounceEq 0.52s infinite ease-in-out 0.15s; }
+    .playing .eq-stick:nth-child(5) { animation: bounceEq 0.85s infinite ease-in-out 0.05s; }
+    .playing .eq-stick:nth-child(6) { animation: bounceEq 0.60s infinite ease-in-out 0.25s; }
+    .playing .eq-stick:nth-child(7) { animation: bounceEq 0.72s infinite ease-in-out 0.18s; }
+    .playing .eq-stick:nth-child(8) { animation: bounceEq 0.48s infinite infinite 0.12s; }
+    .playing .eq-stick:nth-child(9) { animation: bounceEq 0.66s infinite ease-in-out 0.22s; }
+    .playing .eq-stick:nth-child(10) { animation: bounceEq 0.54s infinite ease-in-out 0.08s; }
+
+    @keyframes bounceEq {
+      0%, 100% { height: 4px; }
+      50% { height: 22px; }
+    }
+
+    /* Referans Resimdeki İlerleme Çubuğu ve Süreler */
+    .timeline-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.20);
+      border-radius: 999px;
+      position: relative;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: #ffd60a;
+      border-radius: 999px;
+      position: relative;
+      box-shadow: 0 0 10px rgba(255, 214, 10, 0.6);
+      transition: width 0.3s linear;
+    }
+
+    /* İlerleme Çubuğunun Ucundaki Beyaz Yuvarlak Tutamaç */
+    .progress-thumb {
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 0 8px rgba(255, 214, 10, 0.9);
+    }
+
+    .time-labels-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.68);
       letter-spacing: 0.3px;
     }
 
-    /* Gizli Medya Elemanı (MP4'lerin Sesi Kesintisiz Çalar) */
+    /* BUTONLAR: Referans Resimdeki 3 Yuvarlak Tuş */
+    .buttons-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      margin-top: 4px;
+    }
+
+    .circle-btn {
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #ffffff;
+      transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .circle-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Yan Butonlar: Ses (Mute) & Canlı Eşitle (Re-sync) */
+    .side-action-btn {
+      width: 54px;
+      height: 54px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.32);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    .side-action-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.55);
+    }
+
+    /* Büyük Orta Buton: Play / Pause (Referans Görseldeki Kalın Beyaz Halkalı Tuş) */
+    .center-play-btn {
+      width: 74px;
+      height: 74px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 2.5px solid rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+    }
+
+    .center-play-btn:hover {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: #ffffff;
+    }
+
+    /* SVG Simgeleri */
+    .btn-svg {
+      width: 24px;
+      height: 24px;
+      fill: #ffffff;
+    }
+
+    .play-btn-svg {
+      width: 30px;
+      height: 30px;
+      fill: #ffffff;
+    }
+
+    /* Gizli Medya */
     #radioAudio {
       display: none;
     }
 
-    /* CarPlay 800x480 ve Küçük Ekran Uyumluluk Ayarları */
-    @media (max-width: 820px) {
-      .carplay-stage {
-        padding: 10px 12px;
-        gap: 12px;
+    /* Ekran Uyumluluğu */
+    @media (max-height: 520px) {
+      .lofi-ui-container {
+        padding: 12px 24px 18px 24px;
       }
-      .carplay-dock {
+      .main-title-wrap {
+        font-size: 32px;
+      }
+      .now-playing-card {
+        padding: 8px 14px;
+      }
+      .album-art-thumb {
         width: 50px;
-        padding: 12px 6px;
-        border-radius: 18px;
+        height: 50px;
       }
-      .floating-control-card {
-        padding: 14px 18px;
-        border-radius: 20px;
-        gap: 14px;
+      .center-play-btn {
+        width: 62px;
+        height: 62px;
       }
-      .track-title {
-        font-size: 18px;
-      }
-      .play-btn-main {
-        width: 52px;
-        height: 52px;
-        font-size: 20px;
-      }
-      .ctrl-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 15px;
+      .side-action-btn {
+        width: 46px;
+        height: 46px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Sinematik Arka Plan & Karartma -->
-  <div class="cinematic-bg"></div>
-  <div class="bg-overlay"></div>
+  <!-- Arka Plan Resmi: Mevcut görsel korunur -->
+  <div class="ambient-bg"></div>
+  <div class="bg-gradient-overlay"></div>
 
-  <!-- Sadece Yağmur Efekti: HTML5 Canvas -->
+  <!-- Yağmur Efekti: Mevcut animasyonlu Canvas korunur -->
   <canvas id="rainCanvas"></canvas>
 
-  <!-- CarPlay Sahnesi -->
-  <div class="carplay-stage">
+  <!-- Referans Resimdeki Birebir Arayüz -->
+  <div class="lofi-ui-container">
 
-    <!-- Sol Apple CarPlay Kenar Çubuğu (Dock) -->
-    <aside class="carplay-dock">
-      <div class="dock-top">
-        <div class="dock-clock" id="dockClock">12:00</div>
-        <div class="dock-status-icons">
-          <!-- 5G Hücresel Sinyal Simgesi -->
-          <svg class="dock-icon-svg" viewBox="0 0 24 24">
-            <path d="M2 19h3v-3H2v3zm5 0h3v-7H7v7zm5 0h3v-11h-3v11zm5 0h3v-16h-3v16z"/>
+    <!-- Üst Şerit -->
+    <header class="top-header-bar">
+      <!-- Sol: Saat -->
+      <div class="top-clock" id="liveClock">01:51</div>
+
+      <!-- Orta: LIVE & Başlık -->
+      <div class="center-branding">
+        <div class="live-pill-badge">
+          <span class="live-dot-pulse"></span>
+          <span>LIVE</span>
+        </div>
+        <h1 class="main-title-wrap">
+          <span class="brand-ambient">Ambient</span><span class="brand-lofi">Lofi</span>
+        </h1>
+        <div class="sub-brand-text">Music Radio</div>
+      </div>
+
+      <!-- Sağ: Hava Durumu -->
+      <div class="top-weather">
+        <svg class="weather-icon-svg" viewBox="0 0 24 24">
+          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/>
+        </svg>
+        <span>12°C</span>
+      </div>
+    </header>
+
+    <!-- Orta ve Alt: Kart, Zaman Çubuğu, Butonlar -->
+    <div class="player-controls-zone" id="playerZone">
+
+      <!-- Referans Resimdeki Yüzen Buzlu Cam Kart -->
+      <div class="now-playing-card">
+        <div class="card-left-group">
+          <!-- Albüm Küçük Resmi (Şehir akşam ışıkları) -->
+          <img class="album-art-thumb" src="assets/album_thumb.jpg" alt="Album Art" />
+          <div class="track-titles">
+            <div class="song-title" id="trackTitle">Rainy Evening</div>
+            <div class="song-artist" id="trackArtist">Lofi Vibes</div>
+          </div>
+        </div>
+
+        <!-- Sağdaki Canlı Ses Ekolayzer Çubukları -->
+        <div class="audio-eq-bars" id="eqBars">
+          <span class="eq-stick"></span>
+          <span class="eq-stick"></span>
+          <span class="eq-stick"></span>
+          <span class="eq-stick"></span>
+          <span class="eq-stick"></span>
+          <span class="eq-stick"></span>
+          <span class="eq-stick"></span>
+          <span class="eq-stick"></span>
+          <span class="eq-stick"></span>
+          <span class="eq-stick"></span>
+        </div>
+      </div>
+
+      <!-- İlerleme Çubuğu & Süreler -->
+      <div class="timeline-container">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressBar">
+            <span class="progress-thumb"></span>
+          </div>
+        </div>
+        <div class="time-labels-row">
+          <span id="currentTime">01:02</span>
+          <span id="totalDuration">02:47</span>
+        </div>
+      </div>
+
+      <!-- Referans Resimdeki 3 Buton -->
+      <div class="buttons-row">
+        <!-- 1. Sol: Ses (Mute / Unmute) -->
+        <button class="circle-btn side-action-btn" id="muteBtn" onclick="toggleMute()" title="Sesi Aç/Kapat" aria-label="Mute">
+          <svg class="btn-svg" id="muteIcon" viewBox="0 0 24 24">
+            <!-- Hoparlör Açık Simgesi -->
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
           </svg>
-          <!-- Batarya Simgesi -->
-          <svg class="dock-icon-svg" viewBox="0 0 24 24">
-            <path d="M16 8H6c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zm4 2.5v3c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/>
+        </button>
+
+        <!-- 2. Orta: Büyük Pause / Play Butonu -->
+        <button class="circle-btn center-play-btn" id="playBtn" onclick="togglePlayback()" title="Oynat / Duraklat" aria-label="Play/Pause">
+          <!-- Pause İkonu (Referans Resimdeki ||) -->
+          <svg class="play-btn-svg" id="playIconSvg" viewBox="0 0 24 24">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
           </svg>
-        </div>
+        </button>
+
+        <!-- 3. Sağ: Canlı Eşitleme / Re-sync Butonu -->
+        <button class="circle-btn side-action-btn" onclick="resyncToLive()" title="Canlı Yayına Eşitle" aria-label="Sync Live">
+          <svg class="btn-svg" viewBox="0 0 24 24">
+            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+          </svg>
+        </button>
       </div>
 
-      <!-- CarPlay Home / Grid Tuşu -->
-      <div class="dock-home-btn" onclick="resyncToLive()" title="Sync to Live">
-        <div class="home-grid-icon">
-          <span></span><span></span><span></span><span></span>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Ana Alan -->
-    <main class="carplay-main">
-      <!-- Üst Şerit: Canlı Radyo Rozeti & Bilgi -->
-      <div class="top-meta-row">
-        <div class="live-broadcast-pill">
-          <span class="live-pulse-dot"></span>
-          <span id="liveStatusText">CANLI RADYO YAYINI</span>
-        </div>
-        <div class="top-station-badge">
-          Ambient Stream • 24/7 Global Audio
-        </div>
-      </div>
-
-      <!-- ALTA YÜZEN BUZLU CAM CARPLAY KONTROL KARTI (Tasarım 2) -->
-      <section class="floating-control-card">
-        <!-- Sol: Şarkı Bilgisi -->
-        <div class="card-meta">
-          <div class="track-badge-row">
-            <span class="track-category-tag" id="trackCategory">AMBIENCE</span>
-            <span class="track-sync-indicator">• Herkeste Aynı Anda Çalıyor</span>
-          </div>
-          <div class="track-title" id="trackTitle">Ambient Radio Yükleniyor...</div>
-          <div class="track-subtitle" id="trackSubtitle">Kesintisiz Canlı Ambient Müzik</div>
-        </div>
-
-        <!-- Orta: Senkronize Canlı Çubuk -->
-        <div class="card-timeline">
-          <div class="progress-bar-wrap">
-            <div class="progress-bar-fill" id="progressBar"></div>
-          </div>
-          <div class="timeline-labels">
-            <span id="currentTimeLabel">00:00</span>
-            <span class="live-synced-pill">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffd60a">
-                <circle cx="12" cy="12" r="10"/>
-              </svg>
-              CANLI SENKRONİZE
-            </span>
-            <span id="durationLabel">00:00</span>
-          </div>
-        </div>
-
-        <!-- Sağ: Medya Tuşları -->
-        <div class="card-controls">
-          <!-- Canlıya Eşitle (Sync Live) -->
-          <button class="ctrl-btn sync-btn" onclick="resyncToLive()" title="Canlı Yayına Eşitle">
-            ↺ Canlı
-          </button>
-
-          <!-- Büyük Apple Play/Pause Tuşu -->
-          <button class="play-btn-main" id="playBtn" onclick="togglePlayback()" aria-label="Play/Pause">
-            ▶
-          </button>
-
-          <!-- Ses / Mute Tuşu -->
-          <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()" title="Sesi Aç/Kapat" aria-label="Mute">
-            🔊
-          </button>
-        </div>
-      </section>
-    </main>
+    </div>
   </div>
 
   <!-- HTML5 Ses Elemanı (Normal-Video-low-bit .mp4 Dosyalarını Audio Olarak Çalar) -->
@@ -555,39 +581,38 @@
        Toplam Süre: ~4894.98 saniye (~81.5 dakika kesintisiz döngü)
        ===================================================================== */
     const PLAYLIST = [
-      { id: "Indigo_Window_Seat", title: "Indigo Window Seat", category: "ambience", file: "Indigo_Window_Seat.mp4", duration: 146.17 },
-      { id: "Window_Left_Ajar", title: "Window Left Ajar", category: "ambience", file: "Window_Left_Ajar.mp4", duration: 158.58 },
-      { id: "Breath_Before_The_Dawn", title: "Breath Before The Dawn", category: "ambience", file: "Breath_Before_The_Dawn.mp4", duration: 162.92 },
-      { id: "Streetlight_Patterns", title: "Streetlight Patterns", category: "ambience", file: "Streetlight_Patterns.mp4", duration: 166.96 },
-      { id: "Seven_AM_on_the_Porch", title: "Seven AM on the Porch", category: "ambience", file: "Seven_AM_on_the_Porch.mp4", duration: 174.96 },
-      { id: "Embers_and_Snowfall", title: "Embers and Snowfall", category: "ambience", file: "Embers_and_Snowfall.mp4", duration: 161.50 },
-      { id: "Rain_Against_The_Glass", title: "Rain Against The Glass", category: "ambience", file: "Rain_Against_The_Glass.mp4", duration: 147.71 },
-      { id: "Hearthside_Stills", title: "Hearthside Stills", category: "ambience", file: "Hearthside_Stills.mp4", duration: 152.21 },
-      { id: "Behind_the_Pane", title: "Behind the Pane", category: "ambience", file: "Behind_the_Pane.mp4", duration: 170.58 },
-      { id: "Asphalt_Sanctuary", title: "Asphalt Sanctuary", category: "ambience", file: "Asphalt_Sanctuary.mp4", duration: 140.75 },
-      { id: "Glass_Panes_and_Morning_Birds", title: "Glass Panes and Morning Birds", category: "chill", file: "Glass_Panes_and_Morning_Birds.mp4", duration: 178.96 },
-      { id: "Midnight_Hearth", title: "Midnight Hearth", category: "chill", file: "Midnight_Hearth.mp4", duration: 162.96 },
-      { id: "Deep_Basin", title: "Deep Basin", category: "chill", file: "Deep_Basin.mp4", duration: 153.38 },
-      { id: "rain_ambience_slow_atmospheri", title: "Rain Ambience", category: "chill", file: "rain_ambience_slow_atmospheri.mp4", duration: 158.79 },
-      { id: "Under_the_Canopy", title: "Under the Canopy", category: "chill", file: "Under_the_Canopy.mp4", duration: 167.17 },
-      { id: "Slow_Coffee_in_the_Rain", title: "Slow Coffee in the Rain", category: "chill", file: "Slow_Coffee_in_the_Rain.mp4", duration: 172.00 },
-      { id: "The_Weightless_Hour", title: "The Weightless Hour", category: "chill", file: "The_Weightless_Hour.mp4", duration: 156.71 },
-      { id: "Glass_Roof_Lullaby", title: "Glass Roof Lullaby", category: "chill", file: "Glass_Roof_Lullaby.mp4", duration: 173.75 },
-      { id: "Rain_on_the_Attic_Glass", title: "Rain on the Attic Glass", category: "chill", file: "Rain_on_the_Attic_Glass.mp4", duration: 171.46 },
-      { id: "Piano_in_the_Greenhouse", title: "Piano in the Greenhouse", category: "chill", file: "Piano_in_the_Greenhouse.mp4", duration: 166.79 },
-      { id: "The_Parked_Hour", title: "The Parked Hour", category: "calm", file: "The_Parked_Hour.mp4", duration: 178.50 },
-      { id: "Sleeping_In_Celestial_Light", title: "Sleeping in Celestial Light", category: "calm", file: "Sleeping_In_Celestial_Light.mp4", duration: 171.04 },
-      { id: "Pavement_and_Pine", title: "Pavement and Pine", category: "calm", file: "Pavement_and_Pine.mp4", duration: 168.46 },
-      { id: "Patterns_on_the_Glass", title: "Patterns on the Glass", category: "calm", file: "Patterns_on_the_Glass.mp4", duration: 161.04 },
-      { id: "Between_Sleep_and_Waking", title: "Between Sleep and Waking", category: "calm", file: "Between_Sleep_and_Waking.mp4", duration: 166.33 },
-      { id: "Seven_Thirty_AM", title: "Seven Thirty AM", category: "calm", file: "Seven_Thirty_AM.mp4", duration: 175.96 },
-      { id: "Coffee_Steam_and_Asphalt", title: "Coffee Steam and Asphalt", category: "calm", file: "Coffee_Steam_and_Asphalt.mp4", duration: 179.79 },
-      { id: "Midnight_Shoreline", title: "Midnight Shoreline", category: "calm", file: "Midnight_Shoreline.mp4", duration: 129.25 },
-      { id: "Afternoon_Under_the_Cedar", title: "Afternoon Under the Cedar", category: "calm", file: "Afternoon_Under_the_Cedar.mp4", duration: 167.38 },
-      { id: "Glass_Between_Us", title: "Glass Between Us", category: "calm", file: "Glass_Between_Us.mp4", duration: 152.92 }
+      { id: "Indigo_Window_Seat", title: "Indigo Window Seat", category: "Lofi Vibes", file: "Indigo_Window_Seat.mp4", duration: 146.17 },
+      { id: "Window_Left_Ajar", title: "Window Left Ajar", category: "Lofi Vibes", file: "Window_Left_Ajar.mp4", duration: 158.58 },
+      { id: "Breath_Before_The_Dawn", title: "Breath Before The Dawn", category: "Lofi Vibes", file: "Breath_Before_The_Dawn.mp4", duration: 162.92 },
+      { id: "Streetlight_Patterns", title: "Streetlight Patterns", category: "Lofi Vibes", file: "Streetlight_Patterns.mp4", duration: 166.96 },
+      { id: "Seven_AM_on_the_Porch", title: "Seven AM on the Porch", category: "Lofi Vibes", file: "Seven_AM_on_the_Porch.mp4", duration: 174.96 },
+      { id: "Embers_and_Snowfall", title: "Embers and Snowfall", category: "Lofi Vibes", file: "Embers_and_Snowfall.mp4", duration: 161.50 },
+      { id: "Rain_Against_The_Glass", title: "Rain Against The Glass", category: "Lofi Vibes", file: "Rain_Against_The_Glass.mp4", duration: 147.71 },
+      { id: "Hearthside_Stills", title: "Hearthside Stills", category: "Lofi Vibes", file: "Hearthside_Stills.mp4", duration: 152.21 },
+      { id: "Behind_the_Pane", title: "Behind the Pane", category: "Lofi Vibes", file: "Behind_the_Pane.mp4", duration: 170.58 },
+      { id: "Asphalt_Sanctuary", title: "Asphalt Sanctuary", category: "Lofi Vibes", file: "Asphalt_Sanctuary.mp4", duration: 140.75 },
+      { id: "Glass_Panes_and_Morning_Birds", title: "Glass Panes and Morning Birds", category: "Chill Beats", file: "Glass_Panes_and_Morning_Birds.mp4", duration: 178.96 },
+      { id: "Midnight_Hearth", title: "Midnight Hearth", category: "Chill Beats", file: "Midnight_Hearth.mp4", duration: 162.96 },
+      { id: "Deep_Basin", title: "Deep Basin", category: "Chill Beats", file: "Deep_Basin.mp4", duration: 153.38 },
+      { id: "rain_ambience_slow_atmospheri", title: "Rain Ambience", category: "Chill Beats", file: "rain_ambience_slow_atmospheri.mp4", duration: 158.79 },
+      { id: "Under_the_Canopy", title: "Under the Canopy", category: "Chill Beats", file: "Under_the_Canopy.mp4", duration: 167.17 },
+      { id: "Slow_Coffee_in_the_Rain", title: "Slow Coffee in the Rain", category: "Chill Beats", file: "Slow_Coffee_in_the_Rain.mp4", duration: 172.00 },
+      { id: "The_Weightless_Hour", title: "The Weightless Hour", category: "Chill Beats", file: "The_Weightless_Hour.mp4", duration: 156.71 },
+      { id: "Glass_Roof_Lullaby", title: "Glass Roof Lullaby", category: "Chill Beats", file: "Glass_Roof_Lullaby.mp4", duration: 173.75 },
+      { id: "Rain_on_the_Attic_Glass", title: "Rain on the Attic Glass", category: "Chill Beats", file: "Rain_on_the_Attic_Glass.mp4", duration: 171.46 },
+      { id: "Piano_in_the_Greenhouse", title: "Piano in the Greenhouse", category: "Chill Beats", file: "Piano_in_the_Greenhouse.mp4", duration: 166.79 },
+      { id: "The_Parked_Hour", title: "The Parked Hour", category: "Nocturnal Calm", file: "The_Parked_Hour.mp4", duration: 178.50 },
+      { id: "Sleeping_In_Celestial_Light", title: "Sleeping in Celestial Light", category: "Nocturnal Calm", file: "Sleeping_In_Celestial_Light.mp4", duration: 171.04 },
+      { id: "Pavement_and_Pine", title: "Pavement and Pine", category: "Nocturnal Calm", file: "Pavement_and_Pine.mp4", duration: 168.46 },
+      { id: "Patterns_on_the_Glass", title: "Patterns on the Glass", category: "Nocturnal Calm", file: "Patterns_on_the_Glass.mp4", duration: 161.04 },
+      { id: "Between_Sleep_and_Waking", title: "Between Sleep and Waking", category: "Nocturnal Calm", file: "Between_Sleep_and_Waking.mp4", duration: 166.33 },
+      { id: "Seven_Thirty_AM", title: "Seven Thirty AM", category: "Nocturnal Calm", file: "Seven_Thirty_AM.mp4", duration: 175.96 },
+      { id: "Coffee_Steam_and_Asphalt", title: "Coffee Steam and Asphalt", category: "Nocturnal Calm", file: "Coffee_Steam_and_Asphalt.mp4", duration: 179.79 },
+      { id: "Midnight_Shoreline", title: "Midnight Shoreline", category: "Nocturnal Calm", file: "Midnight_Shoreline.mp4", duration: 129.25 },
+      { id: "Afternoon_Under_the_Cedar", title: "Afternoon Under the Cedar", category: "Nocturnal Calm", file: "Afternoon_Under_the_Cedar.mp4", duration: 167.38 },
+      { id: "Glass_Between_Us", title: "Glass Between Us", category: "Nocturnal Calm", file: "Glass_Between_Us.mp4", duration: 152.92 }
     ];
 
-    // Şarkıların başlama zamanlarını ve toplam süreyi hesapla
     let TOTAL_CYCLE_DURATION = 0;
     PLAYLIST.forEach(t => {
       t.startTime = TOTAL_CYCLE_DURATION;
@@ -621,14 +646,14 @@
        ===================================================================== */
     const audio = document.getElementById("radioAudio");
     const playBtn = document.getElementById("playBtn");
-    const muteBtn = document.getElementById("muteBtn");
+    const playIconSvg = document.getElementById("playIconSvg");
+    const muteIcon = document.getElementById("muteIcon");
     const progressBar = document.getElementById("progressBar");
-    const currentTimeLabel = document.getElementById("currentTimeLabel");
-    const durationLabel = document.getElementById("durationLabel");
-    const trackCategory = document.getElementById("trackCategory");
+    const currentTimeEl = document.getElementById("currentTime");
+    const totalDurationEl = document.getElementById("totalDuration");
     const trackTitle = document.getElementById("trackTitle");
-    const trackSubtitle = document.getElementById("trackSubtitle");
-    const liveStatusText = document.getElementById("liveStatusText");
+    const trackArtist = document.getElementById("trackArtist");
+    const playerZone = document.getElementById("playerZone");
 
     let isPlaying = false;
     let currentTrackIndex = -1;
@@ -650,25 +675,23 @@
         audio.load();
         audio.currentTime = live.offset;
       } else {
-        // Eğer 2 saniyeden fazla sapma varsa düzelt
         if (Math.abs(audio.currentTime - live.offset) > 2.0) {
           audio.currentTime = live.offset;
         }
       }
 
       // UI Güncelle
-      trackCategory.textContent = live.track.category.toUpperCase();
       trackTitle.textContent = live.track.title;
-      trackSubtitle.textContent = `Ambient Radio • Canlı Parça ${live.trackIndex + 1}/${PLAYLIST.length}`;
-      durationLabel.textContent = formatTime(live.track.duration);
+      trackArtist.textContent = live.track.category;
+      totalDurationEl.textContent = formatTime(live.track.duration);
 
       if (forcePlay || isPlaying) {
         audio.play().then(() => {
           isPlaying = true;
-          updatePlayBtnUI();
+          updatePlayUI();
         }).catch(() => {
           isPlaying = false;
-          updatePlayBtnUI();
+          updatePlayUI();
         });
       }
     }
@@ -680,7 +703,7 @@
       } else {
         syncRadioToLive(true);
       }
-      updatePlayBtnUI();
+      updatePlayUI();
     }
 
     function resyncToLive() {
@@ -689,58 +712,61 @@
 
     function toggleMute() {
       audio.muted = !audio.muted;
-      muteBtn.textContent = audio.muted ? "🔇" : "🔊";
-    }
-
-    function updatePlayBtnUI() {
-      if (isPlaying) {
-        playBtn.textContent = "⏸";
-        liveStatusText.textContent = "CANLI YAYINDA • SENKRONİZE";
+      if (audio.muted) {
+        // Mute simgesi
+        muteIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.73 4.73H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
       } else {
-        playBtn.textContent = "▶";
-        liveStatusText.textContent = "DİNLEMEK İÇİN DOKUNUN";
+        // Ses Açık simgesi
+        muteIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
       }
     }
 
-    // Şarkı bittiğinde otomatik bir sonraki canlı şarkıya geçiş
+    function updatePlayUI() {
+      if (isPlaying) {
+        // Pause || ikonu
+        playIconSvg.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        playerZone.classList.add("playing");
+      } else {
+        // Play ▶ ikonu
+        playIconSvg.innerHTML = '<path d="M8 5v14l11-7z"/>';
+        playerZone.classList.remove("playing");
+      }
+    }
+
     audio.addEventListener("ended", () => {
       syncRadioToLive(true);
     });
 
-    // Zamanlayıcı: İlerleme çubuğunu ve süreyi sürekli güncelle
     setInterval(() => {
       if (!audio.src) return;
       const live = getLiveBroadcastState();
-      
       const cur = isPlaying ? audio.currentTime : live.offset;
       const dur = live.track.duration;
       const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
 
       progressBar.style.width = pct + "%";
-      currentTimeLabel.textContent = formatTime(cur);
+      currentTimeEl.textContent = formatTime(cur);
 
-      // Canlı yayın kaymasını arka planda otomatik düzelt (drift control)
       if (isPlaying && Math.abs(audio.currentTime - live.offset) > 3.0) {
         audio.currentTime = live.offset;
       }
     }, 400);
 
     /* =====================================================================
-       5. SAAT GÜNCELLEMESİ (CARPLAY DOCK İÇİN)
+       5. CANLI DİJİTAL SAAT (REFERANS RESİMDEKİ 01:51)
        ===================================================================== */
     function updateClock() {
       const now = new Date();
       const h = String(now.getHours()).padStart(2, '0');
       const m = String(now.getMinutes()).padStart(2, '0');
-      const clockEl = document.getElementById("dockClock");
+      const clockEl = document.getElementById("liveClock");
       if (clockEl) clockEl.textContent = `${h}:${m}`;
     }
     updateClock();
     setInterval(updateClock, 1000);
 
     /* =====================================================================
-       6. SADECE YAĞMUR ANİMASYONU (HAREKETLİ TEK ŞEY)
-       Gerçekçi cam üstü su damlacıkları ve süzülen yağmur çizgileri
+       6. YAĞMUR ANİMASYONU (MEVCUT EFEKTİMİZ BİREBİR KORUNUR)
        ===================================================================== */
     const rainCanvas = document.getElementById("rainCanvas");
     const rCtx = rainCanvas.getContext("2d");
@@ -752,7 +778,6 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    // Düşen Yağmur Damlaları (Hafif Rüzgarlı Doğal Açı)
     const DROP_COUNT = 95;
     const drops = [];
     for (let i = 0; i < DROP_COUNT; i++) {
@@ -766,7 +791,6 @@
       });
     }
 
-    // Cam Üstünde Duran ve Yavaş Süzülen Yoğuşma Damlaları
     const GLASS_DROP_COUNT = 36;
     const glassDrops = [];
     for (let i = 0; i < GLASS_DROP_COUNT; i++) {
@@ -783,7 +807,6 @@
     function animateRain() {
       rCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
 
-      // 1. Düşen Yağmur Çizgileri
       rCtx.lineCap = "round";
       for (let i = 0; i < drops.length; i++) {
         const d = drops[i];
@@ -791,7 +814,6 @@
         rCtx.lineWidth = d.width;
         rCtx.beginPath();
         rCtx.moveTo(d.x, d.y);
-        // Hafif sağa eğimli rüzgar açısı (CarPlay penceresi görünümü)
         rCtx.lineTo(d.x - 3.5, d.y + d.length);
         rCtx.stroke();
 
@@ -804,7 +826,6 @@
         }
       }
 
-      // 2. Cam Üzerindeki Damlacıklar ve Yavaş Süzülme
       for (let i = 0; i < glassDrops.length; i++) {
         const gd = glassDrops[i];
         rCtx.fillStyle = `rgba(235, 245, 255, ${gd.opacity})`;
@@ -830,11 +851,9 @@
     }
     animateRain();
 
-    // Sayfa açıldığında yayını hemen eşitle
     window.addEventListener("DOMContentLoaded", () => {
       syncRadioToLive(false);
 
-      // İlk kullanıcı tıklamasında çalmayı başlat
       document.body.addEventListener("click", function firstClickInit() {
         if (!isPlaying) {
           togglePlayback();
